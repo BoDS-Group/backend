@@ -1,18 +1,12 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
+# Database connection settings
+DATABASE_URL = "postgresql://username:password@localhost:5432/mydatabase"
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base = declarative_base()
-
-# Dependency to get DB session
 def get_db():
-    db = SessionLocal()
+    conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
     try:
-        yield db
+        yield conn
     finally:
-        db.close()
+        conn.close()
