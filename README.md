@@ -20,7 +20,7 @@ pip install -r requirements.txt
 ## Usage
 To run the server:
 ```bash
-python manage.py runserver
+fastapi dev main.py
 ```
 
 To run the tests:
