@@ -1,5 +1,25 @@
 import re
-from django.db import connection
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+DB_NAME = os.getenv('DB_NAME')
+DB_USER = os.getenv('DB_USER')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_HOST = os.getenv('DB_HOST')
+DB_PORT = os.getenv('DB_PORT')
+
+def get_connection():
+    return psycopg2.connect(
+        dbname=DB_NAME,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        host=DB_HOST,
+        port=DB_PORT
+    )
 
 def safe_identifier(identifier):
     """
@@ -34,20 +54,53 @@ def dictfetchall(cursor):
     """
     Return all rows from a cursor as a list of dictionaries.
     """
-    columns = [col[0] for col in cursor.description]
-    return [dict(zip(columns, row)) for row in cursor.fetchall()]
+    return cursor.fetchall()
 
 def dictfetchone(cursor):
     """
     Return one row from a cursor as a dictionary.
     """
-    row = cursor.fetchone()
-    if row is None:
-        return None
-    columns = [col[0] for col in cursor.description]
-    return dict(zip(columns, row))
+    return cursor.fetchone()
+
+def test_connection():
+    """
+    Test the database connection.
+    
+    Returns:
+      - True if the connection is successful.
+      - False if the connection fails.
+    """
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT 1")
+                cursor.fetchone()
+        print(f"PostgreSQL connection successful | DB: {DB_NAME} | User: {DB_USER} |")
+        return True
+    except Exception as e:
+        print(f"Connection test failed: {e}")
+        return False
 
 # --- Generalized CRUD Functions ---
+def create_table(table_name, attributes):
+    """
+    Create a new table in the database.
+    
+    Parameters:
+      - table_name (str): Name of the table.
+      - attributes (dict): Dictionary of column names and their data types.
+    
+    Example:
+      create_table('users', {'id': 'SERIAL PRIMARY KEY', 'username': 'VARCHAR(50)', 'password': 'VARCHAR(50)'})
+    """
+    table = safe_identifier(table_name)
+    columns = ", ".join(f"{safe_identifier(col)} {dtype}" for col, dtype in attributes.items())
+    query = f"CREATE TABLE IF NOT EXISTS {table} ({columns})"
+    
+    with get_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(query)
+            conn.commit()
 
 def insert_record(table_name, attributes, values, returning_columns=None):
     """
@@ -75,10 +128,11 @@ def insert_record(table_name, attributes, values, returning_columns=None):
         ret_cols = ", ".join(safe_identifier(col) for col in returning_columns)
         query += f" RETURNING {ret_cols}"
 
-    with connection.cursor() as cursor:
-        cursor.execute(query, values)
-        if returning_columns:
-            return dictfetchall(cursor)
+    with get_connection() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(query, values)
+            if returning_columns:
+                return dictfetchall(cursor)
     return None
 
 def read_records(table_name, attributes=None, conditions=None):
@@ -100,9 +154,10 @@ def read_records(table_name, attributes=None, conditions=None):
     where_clause, params = build_where_clause(conditions)
     query += where_clause
 
-    with connection.cursor() as cursor:
-        cursor.execute(query, params)
-        return dictfetchall(cursor)
+    with get_connection() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(query, params)
+            return dictfetchall(cursor)
 
 def read_record(table_name, attributes=None, conditions=None):
     """
@@ -123,9 +178,10 @@ def read_record(table_name, attributes=None, conditions=None):
     where_clause, params = build_where_clause(conditions)
     query += where_clause
 
-    with connection.cursor() as cursor:
-        cursor.execute(query, params)
-        return dictfetchone(cursor)
+    with get_connection() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(query, params)
+            return dictfetchone(cursor)
 
 def update_record(table_name, attributes, values, conditions, returning_columns=None):
     """
@@ -157,10 +213,11 @@ def update_record(table_name, attributes, values, conditions, returning_columns=
         ret_cols = ", ".join(safe_identifier(col) for col in returning_columns)
         query += f" RETURNING {ret_cols}"
 
-    with connection.cursor() as cursor:
-        cursor.execute(query, params)
-        if returning_columns:
-            return dictfetchall(cursor)
+    with get_connection() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(query, params)
+            if returning_columns:
+                return dictfetchall(cursor)
     return None
 
 def delete_record(table_name, conditions, returning_columns=None):
@@ -186,8 +243,9 @@ def delete_record(table_name, conditions, returning_columns=None):
         ret_cols = ", ".join(safe_identifier(col) for col in returning_columns)
         query += f" RETURNING {ret_cols}"
 
-    with connection.cursor() as cursor:
-        cursor.execute(query, params)
-        if returning_columns:
-            return dictfetchall(cursor)
+    with get_connection() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(query, params)
+            if returning_columns:
+                return dictfetchall(cursor)
     return None
