@@ -12,6 +12,8 @@ DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_HOST = os.getenv('DB_HOST')
 DB_PORT = os.getenv('DB_PORT')
 
+ALLOWED_KEYWORDS = ['FOREIGN KEY', 'REFERENCES']
+
 def get_connection():
     return psycopg2.connect(
         dbname=DB_NAME,
@@ -27,6 +29,9 @@ def safe_identifier(identifier):
     Allowed: letters, digits, and underscores; must not start with a digit.
     Raises ValueError if the identifier is unsafe.
     """
+    for keyword in ALLOWED_KEYWORDS:
+        if keyword in identifier:
+            return identifier
     if not re.match(r'^[A-Za-z_][A-Za-z0-9_]*$', identifier):
         raise ValueError(f"Unsafe identifier: {identifier}")
     return identifier

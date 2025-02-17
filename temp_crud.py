@@ -8,8 +8,20 @@ attributes = {
     'email': 'VARCHAR(255) NOT NULL',
     'role': 'VARCHAR(50) NOT NULL'
 }
-print("Table Name:", table_name)
+
+table_name = 'store_users'
+attributes = {
+    'id': 'UUID PRIMARY KEY',
+    'name': 'VARCHAR(127) NOT NULL',
+    'picture': 'VARCHAR(255)',
+    'given_name': 'VARCHAR(63) NOT NULL',
+    'family_name': 'VARCHAR(63) NOT NULL',
+    'adress': 'VARCHAR(255)',
+    'FOREIGN KEY (id)': 'REFERENCES roles(id)'
+}
+
 # create_table(table_name, attributes)
+print("Table Name:", table_name)
 
 # Insert a record
 # record_id = str(uuid.uuid4())
@@ -23,5 +35,5 @@ print("Table Name:", table_name)
 # )
 
 # print(f"Inserted record with ID: {record_id}")
-existing_user = read_record('roles', conditions={'email': "hamidurrk@gmail.com"})
-print(existing_user.get('role'))
+# existing_user = read_record('roles', conditions={'email': "hamidurrk@gmail.com"})
+# print(existing_user.get('role'))

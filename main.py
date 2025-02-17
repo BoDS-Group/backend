@@ -49,14 +49,38 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+def check_role(email: str, role: str = 'STORE_ADMIN'):
+    user = read_record('roles', conditions={'email': email})
+    if user is None:
+        return False
+    return user.get('role') == role
+
+def check_if_user_data_exists(email: str):
+    user = read_record('roles', conditions={'email': email})
+    user_data = read_record('store_users', conditions={'id': user.get('id')})
+    if user_data is not None:
+        return user.get('id')
+    else:
+        return None
+
+def insert_user(user_id: str, user: User):
+    user_id = read_record('roles', conditions={'email': user.email}).get('id')
+    insert_record('store_users', attributes=['id', 'name', 'picture', 'given_name', 'family_name'], values=[user_id, user.name, user.picture, user.given_name, user.family_name])
+
+def get_user(email: str):
+    user = read_record('roles', conditions={'email': email})
+    user_data = read_record('store_users', conditions={'id': user.get('id')})
+    return user_data
+
 @app.post("/auth/google", response_model=Token)
 async def google_auth(user: User):
     print(user)
-    
-    existing_user = read_record('users', conditions={'email': user.email})
-    
-    if existing_user is None or existing_user.get('role') != 'STORE_ADMIN':
+    if not check_role(user.email):
         raise HTTPException(status_code=401, detail="Unauthorized")
+    else:
+        user_id = check_if_user_data_exists(user.email)
+        if not user_id:
+            insert_user(user_id, user)
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
@@ -88,11 +112,11 @@ async def read_users_me(authorization: str = Header(None)):
     except JWTError:
         raise credentials_exception
     
-    # Return the full user data
+    user = get_user(token_data.email)
     return {
         "email": token_data.email,
-        "name": "User Name",  # Replace with actual user data
-        "picture": "https://example.com/user-picture.jpg",  # Replace with actual user data
-        "given_name": "Given Name",  # Replace with actual user data
-        "family_name": "Family Name"  # Replace with actual user data
+        "name": user.get('name'),  
+        "picture": user.get('picture'),  
+        "given_name": user.get('given_name'),  
+        "family_name": user.get('family_name')  
     }
