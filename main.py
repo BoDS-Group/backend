@@ -233,7 +233,9 @@ async def update_category(category_id: str, category: CategoryCreate, current_us
 async def create_category(category: CategoryCreate, current_user: TokenData = Depends(is_admin_user)):
     # Convert properties dictionary to JSON string
     properties_json = json.dumps(category.properties) if category.properties else None
-
+    # if any properties contain empty strings, convert them to empty objects
+    properties_json = json.dumps({k: v for k, v in json.loads(properties_json).items() if v})
+    
     # Insert the new category into the database
     insert_record(
         'categories',
