@@ -1,5 +1,6 @@
 from utils.db_utils import *
 import uuid
+import json
 
 # Define the table name and attributes
 table_name = 'roles'
@@ -56,8 +57,8 @@ attributes = {
     'updated_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP'
 }
 
-create_table(table_name, attributes)
-print("Table Name:", table_name)
+# create_table(table_name, attributes)
+# print("Table Name:", table_name)
 
 # Insert a record
 # record_id = str(uuid.uuid4())
@@ -73,3 +74,42 @@ print("Table Name:", table_name)
 # print(f"Inserted record with ID: {record_id}")
 # existing_user = read_record('roles', conditions={'email': "hamidurrk@gmail.com"})
 # print(existing_user.get('role'))
+
+# # Insert a record into the categories table
+# category_name = 'Uncategorized'
+# parent_category = None  # Assuming this is a top-level category
+# properties = properties = {
+# }  # Assuming no additional properties
+
+# # Convert properties dictionary to JSON string
+# properties_json = json.dumps(properties)
+
+# insert_record(
+#     'categories',
+#     attributes=['name', 'parent', 'properties'],
+#     values=[category_name, parent_category, properties_json]
+# )
+
+# print("Inserted category with name:", category_name)
+
+# # Insert a record into the products table
+# title = 'Sample Product'
+# description = 'This is a sample product description.'
+# price = 19.99
+# images = ['image1.jpg', 'image2.jpg']
+# category = 1  # Assuming category with id 1 exists
+# properties = {'color': 'red', 'size': 'M'}
+
+# # Convert properties dictionary to JSON string
+# properties_json = json.dumps(properties)
+
+# insert_record(
+#     'products',
+#     attributes=['title', 'description', 'price', 'images', 'category', 'properties'],
+#     values=[title, description, price, images, category, properties_json]
+# )
+
+# print("Inserted product with title:", title)
+
+# delete_record('categories', conditions={'id': 1})
+# print("Deleted category with ID: 1")

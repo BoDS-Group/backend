@@ -1,9 +1,11 @@
-# filepath: /path/to/your/fastapi/app/main.py
-from fastapi import FastAPI, HTTPException, Depends, Header
+from fastapi import FastAPI, HTTPException, Depends, Header, status, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
+from typing import Optional
+import json
 from utils.db_utils import *
 
 app = FastAPI()
@@ -25,12 +27,15 @@ SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 class Token(BaseModel):
     access_token: str
     token_type: str
 
 class TokenData(BaseModel):
-    email: str | None = None
+    email: Optional[str] = None
+    is_admin: Optional[bool] = False
 
 class User(BaseModel):
     email: str
@@ -38,6 +43,27 @@ class User(BaseModel):
     picture: str
     given_name: str
     family_name: str
+
+class ProductCreate(BaseModel):
+    title: str
+    description: Optional[str] = None
+    price: float
+    images: Optional[list[str]] = None
+    category: int
+    properties: Optional[dict] = None
+
+class ProductUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[float] = None
+    images: Optional[list[str]] = None
+    category: Optional[int] = None
+    properties: Optional[dict] = None
+
+class CategoryCreate(BaseModel):
+    name: str
+    parent: Optional[int] = None
+    properties: Optional[dict] = None
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
@@ -48,6 +74,31 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+def get_current_user(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        is_admin: bool = payload.get("is_admin", False)
+        if email is None:
+            raise credentials_exception
+        token_data = TokenData(email=email, is_admin=is_admin)
+    except JWTError:
+        raise credentials_exception
+    return token_data
+
+def is_admin_user(current_user: TokenData = Depends(get_current_user)):
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not enough permissions",
+        )
+    return current_user
 
 def check_role(email: str, role: str = 'STORE_ADMIN'):
     user = read_record('roles', conditions={'email': email})
@@ -72,7 +123,9 @@ def get_user(email: str):
     user_data = read_record('store_users', conditions={'id': user.get('id')})
     return user_data
 
-@app.post("/api/auth/google", response_model=Token)
+api = APIRouter(prefix="/api")
+
+@api.post("/auth/google", response_model=Token)
 async def google_auth(user: User):
     print(user)
     if not check_role(user.email):
@@ -84,40 +137,112 @@ async def google_auth(user: User):
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
+        data={"sub": user.email, "is_admin": True}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@app.get("/api/users/me", response_model=User)
-async def read_users_me(authorization: str = Header(None)):
-    if authorization is None or not authorization.startswith("Bearer "):
-        raise HTTPException(
-            status_code=401,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    token = authorization.split(" ")[1]
-    credentials_exception = HTTPException(
-        status_code=401,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        print(payload)
-        if email is None:
-            raise credentials_exception
-        token_data = TokenData(email=email)
-    except JWTError:
-        raise credentials_exception
-    
-    user = get_user(token_data.email)
+@api.get("/users/me", response_model=User)
+async def read_users_me(current_user: TokenData = Depends(get_current_user)):
+    user = get_user(current_user.email)
     return {
-        "email": token_data.email,
+        "email": current_user.email,
         "name": user.get('name'),  
         "picture": user.get('picture'),  
         "given_name": user.get('given_name'),  
         "family_name": user.get('family_name')  
     }
-    
+
+@api.get("/products")
+async def get_products(current_user: TokenData = Depends(is_admin_user)):
+    products = read_records('products')
+    # print(products)
+    return products
+
+# Get a single product
+@api.get("/products/{product_id}")
+async def get_product(product_id: str, current_user: TokenData = Depends(is_admin_user)):
+    product = read_record('products', conditions={'id': product_id})
+    if product is None:
+        raise HTTPException(status_code=404, detail="Product not found")
+    print(product)
+    return product 
+
+@api.post("/products")
+async def create_product(product: ProductCreate,current_user: TokenData = Depends(is_admin_user)):
+    # Convert properties dictionary to JSON string
+    properties_json = json.dumps(product.properties) if product.properties else None
+
+    # Insert the new product into the database
+    insert_record(
+        'products',
+        attributes=['title', 'description', 'price', 'images', 'category', 'properties'],
+        values=[product.title, product.description, product.price, product.images, product.category, properties_json]
+    )
+    return {"message": "Product created successfully"}
+
+@api.put("/products/{product_id}")
+async def update_product(product_id: str, product: ProductUpdate, current_user: TokenData = Depends(is_admin_user)):
+    # Convert properties dictionary to JSON string if it exists
+    properties_json = json.dumps(product.properties) if product.properties else None
+
+    # Create a dictionary of the fields to update
+    update_data = {k: v for k, v in product.dict().items() if v is not None}
+    if 'properties' in update_data:
+        update_data['properties'] = properties_json
+
+    print(update_data)
+    # Update the product in the database
+    update_record(
+        'products',
+        conditions={'id': product_id},
+        attributes=update_data.keys(),
+        values=list(update_data.values())
+    )
+
+    return {"message": "Product updated successfully"}
+
+@api.delete("/products/{product_id}")
+async def delete_product(product_id: str, current_user: TokenData = Depends(is_admin_user)):
+    delete_record('products', conditions={'id': product_id})
+    return {"message": "Product deleted successfully"}
+
+@api.get("/categories")
+async def get_products(current_user: TokenData = Depends(is_admin_user)):
+    categories = read_records('categories')
+    print(categories)
+    return categories
+
+@api.put("/categories/{category_id}")
+async def update_category(category_id: str, category: CategoryCreate, current_user: TokenData = Depends(is_admin_user)):
+    # Convert properties dictionary to JSON string if it exists
+    properties_json = json.dumps(category.properties) if category.properties else None
+
+    # Create a dictionary of the fields to update
+    update_data = {k: v for k, v in category.dict().items() if v is not None}
+    if 'properties' in update_data:
+        update_data['properties'] = properties_json
+
+    # Update the category in the database
+    update_record(
+        'categories',
+        conditions={'id': category_id},
+        attributes=update_data.keys(),
+        values=list(update_data.values())
+    )
+
+    return {"message": "Category updated successfully"}
+
+@api.post("/categories")
+async def create_category(category: CategoryCreate, current_user: TokenData = Depends(is_admin_user)):
+    # Convert properties dictionary to JSON string
+    properties_json = json.dumps(category.properties) if category.properties else None
+
+    # Insert the new category into the database
+    insert_record(
+        'categories',
+        attributes=['name', 'parent', 'properties'],
+        values=[category.name, category.parent, properties_json]
+    )
+    return {"message": "Category created successfully"}
+
+app.include_router(api)
