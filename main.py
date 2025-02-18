@@ -72,7 +72,7 @@ def get_user(email: str):
     user_data = read_record('store_users', conditions={'id': user.get('id')})
     return user_data
 
-@app.post("/auth/google", response_model=Token)
+@app.post("/api/auth/google", response_model=Token)
 async def google_auth(user: User):
     print(user)
     if not check_role(user.email):
@@ -88,7 +88,7 @@ async def google_auth(user: User):
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@app.get("/users/me", response_model=User)
+@app.get("/api/users/me", response_model=User)
 async def read_users_me(authorization: str = Header(None)):
     if authorization is None or not authorization.startswith("Bearer "):
         raise HTTPException(
@@ -120,3 +120,4 @@ async def read_users_me(authorization: str = Header(None)):
         "given_name": user.get('given_name'),  
         "family_name": user.get('family_name')  
     }
+    

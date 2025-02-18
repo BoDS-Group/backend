@@ -20,7 +20,43 @@ attributes = {
     'FOREIGN KEY (id)': 'REFERENCES roles(id)'
 }
 
-# create_table(table_name, attributes)
+table_name = 'categories'
+attributes = {
+    'id': 'SERIAL PRIMARY KEY',
+    'name': 'VARCHAR(255) NOT NULL',
+    'parent': 'INTEGER REFERENCES categories(id)',
+    'properties': 'JSONB'
+}
+
+table_name = 'products'
+attributes = {
+    'id': 'SERIAL PRIMARY KEY',
+    'title': 'VARCHAR(255) NOT NULL',
+    'description': 'TEXT',
+    'price': 'NUMERIC(10, 2) NOT NULL',
+    'images': 'TEXT[]',
+    'category': 'INTEGER REFERENCES categories(id)',
+    'properties': 'JSONB',
+    'created_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP',
+    'updated_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP'
+}
+
+table_name = 'orders'
+attributes = {
+    'id': 'SERIAL PRIMARY KEY',
+    'line_items': 'JSONB',
+    'name': 'VARCHAR(255)',
+    'email': 'VARCHAR(255)',
+    'city': 'VARCHAR(255)',
+    'postal_code': 'VARCHAR(20)',
+    'street_address': 'VARCHAR(255)',
+    'country': 'VARCHAR(255)',
+    'paid': 'BOOLEAN',
+    'created_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP',
+    'updated_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP'
+}
+
+create_table(table_name, attributes)
 print("Table Name:", table_name)
 
 # Insert a record
