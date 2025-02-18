@@ -198,7 +198,6 @@ async def update_product(product_id: str, product: ProductUpdate, current_user: 
         attributes=update_data.keys(),
         values=list(update_data.values())
     )
-
     return {"message": "Product updated successfully"}
 
 @api.delete("/products/{product_id}")
@@ -221,7 +220,6 @@ async def update_category(category_id: str, category: CategoryCreate, current_us
     update_data = {k: v for k, v in category.dict().items() if v is not None}
     if 'properties' in update_data:
         update_data['properties'] = properties_json
-
     # Update the category in the database
     update_record(
         'categories',
@@ -229,7 +227,6 @@ async def update_category(category_id: str, category: CategoryCreate, current_us
         attributes=update_data.keys(),
         values=list(update_data.values())
     )
-
     return {"message": "Category updated successfully"}
 
 @api.post("/categories")
@@ -244,5 +241,10 @@ async def create_category(category: CategoryCreate, current_user: TokenData = De
         values=[category.name, category.parent, properties_json]
     )
     return {"message": "Category created successfully"}
+
+@api.delete("/categories/{category_id}")
+async def delete_category(category_id: str, current_user: TokenData = Depends(is_admin_user)):
+    delete_record('categories', conditions={'id': category_id})
+    return {"message": "Category deleted successfully"}
 
 app.include_router(api)
