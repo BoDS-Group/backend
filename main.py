@@ -44,6 +44,10 @@ class User(BaseModel):
     given_name: str
     family_name: str
 
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
 class ProductCreate(BaseModel):
     title: str
     description: Optional[str] = None
@@ -141,6 +145,60 @@ async def google_auth(user: User):
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
+def validate_user(email: str, password: str) -> bool:
+    """
+    Validates a user's email and password.
+    
+    Args:
+        email (str): The user's email.
+        password (str): The user's plaintext password.
+    
+    Returns:
+        bool: True if the email and password are valid, False otherwise.
+    """
+    # Fetch the user's data from the 'store_users' table
+    user_data = read_record('store_users', conditions={'adress': email})
+    if user_data is None:
+        return False  # User does not exist in the 'store_users' table
+
+    # Retrieve the stored hashed password
+    stored_hashed_password = user_data.get('password_hash')
+    if stored_hashed_password is None:
+        return False  # No password hash stored for the user
+
+    # Verify the provided password against the stored hash
+    try:
+        # Decode the stored hash to get the original password (for comparison)
+        decoded_password = jwt.decode(stored_hashed_password, SECRET_KEY, algorithms=[ALGORITHM])
+        if decoded_password.get('password') != password:
+            return False  # Passwords do not match
+    except JWTError:
+        return False  # Invalid token or hash
+
+    return True  # Email and password are valid
+
+@api.post("/auth/login", response_model=Token)
+async def login(user: UserLogin):
+    # Validate the user's email and password
+    if not validate_user(user.email, user.password):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    # Check the user's role (optional, if needed)
+    if not check_role(user.email):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    # Insert user data if it doesn't exist (optional, if needed)
+    user_id = check_if_user_data_exists(user.email)
+    if not user_id:
+        insert_user(user_id, user)
+
+    # Generate an access token
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.email, "is_admin": True}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
 @api.get("/users/me", response_model=User)
 async def read_users_me(current_user: TokenData = Depends(get_current_user)):
     user = get_user(current_user.email)
@@ -153,7 +211,8 @@ async def read_users_me(current_user: TokenData = Depends(get_current_user)):
     }
 
 @api.get("/products")
-async def get_products(current_user: TokenData = Depends(is_admin_user)):
+#async def get_products(current_user: TokenData = Depends(is_admin_user)):
+async def get_products():
     products = read_records('products')
     # print(products)
     return products
@@ -250,3 +309,10 @@ async def delete_category(category_id: str, current_user: TokenData = Depends(is
     return {"message": "Category deleted successfully"}
 
 app.include_router(api)
+
+#products properties in json data
+#TO DO: Implement image upload to database
+#Something to get images
+#image endpoint based on id : Create, Read, Delete
+#TO DO: Orders : Create, Update, Read, Delete
+#TO DO: /auth/ : Implement user email and password login system
