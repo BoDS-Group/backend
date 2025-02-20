@@ -234,6 +234,35 @@ async def delete_product(product_id: str, current_user: TokenData = Depends(is_a
     delete_record('products', conditions={'id': product_id})
     return {"message": "Product deleted successfully"}
 
+ITEMS_PER_PAGE = 10
+
+@api.get("/products/recent/{page}")
+async def get_recent_products(page: int):
+    """
+    Get a paginated list of the most recent products.
+    
+    Args:
+        page (int): The page number to retrieve (starting from 1).
+    
+    Returns:
+        list: A list of products for the requested page.
+    """
+    # Validate the page number
+    if page < 1:
+        raise HTTPException(status_code=400, detail="Page number must be at least 1")
+
+    try:
+        products = read_by_page("products", page, ITEMS_PER_PAGE)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch products: {e}")
+
+    # If no products are found, return an empty list
+    if not products:
+        return []
+
+    # Return the paginated list of products
+    return products
+
 @api.get("/categories")
 async def get_products(current_user: TokenData = Depends(is_admin_user)):
     categories = read_records('categories')

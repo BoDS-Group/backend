@@ -188,6 +188,51 @@ def read_record(table_name, attributes=None, conditions=None):
             cursor.execute(query, params)
             return dictfetchone(cursor)
 
+def read_by_page(table_name, page: int = 1, items_per_page: int = None, attributes=None, conditions=None):
+    """
+    Retrieve rows from the specified table, with optional pagination.
+    
+    Parameters:
+      - table_name (str): Name of the table.
+      - page (int): The page number to retrieve (starting from 1). Default is 1.
+      - items_per_page (int, optional): Number of items per page. If not provided, all rows are returned.
+      - attributes (list, optional): List of columns to retrieve. If not provided, selects all columns (*).
+      - conditions (dict, optional): A dictionary of conditions to build the WHERE clause.
+    
+    Returns:
+      - A list of dictionaries representing the rows for the requested page.
+    
+    Raises:
+      - ValueError: If the page number is less than 1.
+    """
+    # Validate the page number
+    if page < 1:
+        raise ValueError("Page number must be at least 1")
+
+    # Calculate the offset if pagination is enabled
+    offset = (page - 1) * items_per_page if items_per_page is not None else None
+
+    # Build the base query
+    table = safe_identifier(table_name)
+    select_clause = ", ".join(safe_identifier(attr) for attr in attributes) if attributes else "*"
+    query = f"SELECT {select_clause} FROM {table} ORDER BY \"created_at\""
+    
+    # Add WHERE clause if conditions are provided
+    where_clause, params = build_where_clause(conditions)
+    query += where_clause
+
+    # Add pagination if items_per_page is provided
+    if items_per_page is not None:
+        query += f" LIMIT {items_per_page}"
+        if offset is not None:
+            query += f" OFFSET {offset}"
+
+    # Execute the query and return the results
+    with get_connection() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(query, params)
+            return dictfetchall(cursor)
+
 def update_record(table_name, attributes, values, conditions, returning_columns=None):
     """
     Update rows in the specified table.
