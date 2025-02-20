@@ -330,6 +330,23 @@ async def upload_image(file: UploadFile = File(...)): # current_user: TokenData 
 
 @api.delete("/images/{image_id}") # current_user: TokenData = Depends(is_admin_user) ommitted for testing
 async def delete_product(image_id: str):
+    # Fetch image metadata from the database
+    image_metadata = read_record('images', conditions={'image_id': image_id})
+    if image_metadata is None:
+        raise HTTPException(status_code=404, detail="Image not found")
+
+    # Construct the full file path
+    file_path = os.path.join(IMAGE_BASE_DIR, image_metadata['file_path'], image_metadata['file_name'])
+    
+    # Delete the image file from the filesystem
+    if os.path.exists(file_path):
+        try:
+            os.remove(file_path)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to delete image file: {e}")
+    else:
+        raise HTTPException(status_code=404, detail="Image file not found")
+
     delete_record('images', conditions={'image_id': image_id})
     return {"message": "Image deleted successfully"}
 
