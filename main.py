@@ -1,18 +1,18 @@
 from fastapi import FastAPI, HTTPException, Depends, Header, status, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
-from pydantic import BaseModel
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
-from typing import Optional
 import json
 import uuid
 import hashlib
 from utils.db_utils import *
+from base_models.models import *
+
+load_dotenv()
 
 app = FastAPI()
 
-# Configure CORS
 origins = [
     "http://localhost:3000",
 ]
@@ -25,54 +25,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# SECRET_KEY = os.getenv("SECRET_KEY")
+# ALGORITHM = os.getenv("ALGORITHM")
+# ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
+
 SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-class TokenData(BaseModel):
-    email: Optional[str] = None
-    is_admin: Optional[bool] = False
-
-class User(BaseModel):
-    email: str
-    name: str
-    picture: str
-
-class UserRegister(BaseModel):
-    name: str
-    email: str
-    password: str
-
-class UserLogin(BaseModel):
-    email: str
-    password: str
-
-class ProductCreate(BaseModel):
-    title: str
-    description: Optional[str] = None
-    price: float
-    images: Optional[list[str]] = None
-    category: int
-    properties: Optional[dict] = None
-
-class ProductUpdate(BaseModel):
-    title: Optional[str] = None
-    description: Optional[str] = None
-    price: Optional[float] = None
-    images: Optional[list[str]] = None
-    category: Optional[int] = None
-    properties: Optional[dict] = None
-
-class CategoryCreate(BaseModel):
-    name: str
-    parent: Optional[int] = None
-    properties: Optional[dict] = None
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
@@ -315,4 +276,3 @@ app.include_router(api)
 #Something to get images
 #image endpoint based on id : Create, Read, Delete
 #TO DO: Orders : Create, Update, Read, Delete
-#TO DO: /auth/ : Implement user email and password login system
