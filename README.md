@@ -50,7 +50,7 @@ This repository contains the backend code for the Second Chance project. It is b
 ### Authentication
 
 #### Google Authentication
-- **Endpoint:** `/api/auth/google`
+- **Endpoint:** `/api/auth/store/google`
 - **Method:** `POST`
 - **Request Body:**
     ```json
@@ -65,7 +65,44 @@ This repository contains the backend code for the Second Chance project. It is b
 - **Response:**
     ```json
     {
-        ":"access_token "your_access_token",
+        "access_token": "your_access_token",
+        "token_type": "bearer"
+    }
+    ```
+
+#### Register
+- **Endpoint:** `/api/auth/store/register`
+- **Method:** `POST`
+- **Request Body:**
+    ```json
+    {
+        "email": "user@example.com",
+        "password": "your_password",
+        "name": "User Name"
+    }
+    ```
+- **Response:**
+    ```json
+    {
+        "access_token": "your_access_token",
+        "token_type": "bearer"
+    }
+    ```
+
+#### Login
+- **Endpoint:** `/api/auth/store/login`
+- **Method:** `POST`
+- **Request Body:**
+    ```json
+    {
+        "email": "user@example.com",
+        "password": "your_password"
+    }
+    ```
+- **Response:**
+    ```json
+    {
+        "access_token": "your_access_token",
         "token_type": "bearer"
     }
     ```
@@ -81,8 +118,6 @@ This repository contains the backend code for the Second Chance project. It is b
         "email": "user@example.com",
         "name": "User Name",
         "picture": "http://example.com/picture.jpg",
-        "given_name": "User",
-        "family_name": "Name"
     }
     ```
 
@@ -192,19 +227,21 @@ This repository contains the backend code for the Second Chance project. It is b
 
 ### Tables
 
-- **roles**
-    - `id`: UUID PRIMARY KEY
-    - `email`: VARCHAR(255) NOT NULL
-    - `role`: VARCHAR(50) NOT NULL
-
 - **store_users**
     - `id`: UUID PRIMARY KEY
     - `name`: VARCHAR(127) NOT NULL
     - `picture`: VARCHAR(255)
-    - `given_name`: VARCHAR(63) NOT NULL
-    - `family_name`: VARCHAR(63) NOT NULL
     - `address`: VARCHAR(255)
-    - `FOREIGN KEY (id)`: REFERENCES roles(id)
+
+- **passwords**
+    - `id`: UUID PRIMARY KEY
+    - `password`: VARCHAR(255) NOT NULL
+    - `FOREIGN KEY (id)`: REFERENCES store_users(id)
+
+- **roles**
+    - `id`: UUID PRIMARY KEY
+    - `role`: VARCHAR(50) NOT NULL
+    - `FOREIGN KEY (id)`: REFERENCES store_users(id)
 
 - **categories**
     - `id`: SERIAL PRIMARY KEY

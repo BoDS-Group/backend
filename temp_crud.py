@@ -6,19 +6,17 @@ import json
 table_name = 'roles'
 attributes = {
     'id': 'UUID PRIMARY KEY',
-    'email': 'VARCHAR(255) NOT NULL',
-    'role': 'VARCHAR(50) NOT NULL'
+    'role': 'VARCHAR(50) NOT NULL',
+    'FOREIGN KEY (id)': 'REFERENCES store_users(id)'
 }
 
 table_name = 'store_users'
 attributes = {
     'id': 'UUID PRIMARY KEY',
+    'email': 'VARCHAR(255) NOT NULL',
     'name': 'VARCHAR(127) NOT NULL',
     'picture': 'VARCHAR(255)',
-    'given_name': 'VARCHAR(63) NOT NULL',
-    'family_name': 'VARCHAR(63) NOT NULL',
-    'adress': 'VARCHAR(255)',
-    'FOREIGN KEY (id)': 'REFERENCES roles(id)'
+    'address': 'VARCHAR(255)',
 }
 
 table_name = 'categories'
@@ -55,6 +53,13 @@ attributes = {
     'paid': 'BOOLEAN',
     'created_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP',
     'updated_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP'
+}
+
+table_name = 'passwords'
+attributes = {
+    'id': 'UUID PRIMARY KEY',
+    'password': 'VARCHAR(255) NOT NULL',
+    'FOREIGN KEY (id)': 'REFERENCES store_users(id)'
 }
 
 # create_table(table_name, attributes)

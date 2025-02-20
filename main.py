@@ -6,6 +6,8 @@ from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from typing import Optional
 import json
+import uuid
+import hashlib
 from utils.db_utils import *
 
 app = FastAPI()
@@ -41,8 +43,11 @@ class User(BaseModel):
     email: str
     name: str
     picture: str
-    given_name: str
-    family_name: str
+
+class UserRegister(BaseModel):
+    name: str
+    email: str
+    password: str
 
 class UserLogin(BaseModel):
     email: str
@@ -79,6 +84,10 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+def encode_password(password: str) -> str:
+    sha_signature = hashlib.sha256(password.encode()).hexdigest()
+    return sha_signature
+
 def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -105,39 +114,48 @@ def is_admin_user(current_user: TokenData = Depends(get_current_user)):
     return current_user
 
 def check_role(email: str, role: str = 'STORE_ADMIN'):
-    user = read_record('roles', conditions={'email': email})
+    user = read_record('store_users', conditions={'email': email})
+    role_data = read_record('roles', conditions={'id': user.get('id')})
+    if role_data is None:
+        return False
+    return role_data.get('role') == role
+
+def check_if_user_email_exists(email: str):
+    user = read_record('store_users', conditions={'email': email})
     if user is None:
         return False
-    return user.get('role') == role
+    return True
 
 def check_if_user_data_exists(email: str):
-    user = read_record('roles', conditions={'email': email})
-    user_data = read_record('store_users', conditions={'id': user.get('id')})
-    if user_data is not None:
-        return user.get('id')
+    user_data = read_record('store_users', conditions={'email': email})
+    if user_data.get('picture') is None:
+        return False
     else:
-        return None
+        return True
 
-def insert_user(user_id: str, user: User):
-    user_id = read_record('roles', conditions={'email': user.email}).get('id')
-    insert_record('store_users', attributes=['id', 'name', 'picture', 'given_name', 'family_name'], values=[user_id, user.name, user.picture, user.given_name, user.family_name])
+def insert_user_registration_data(user_email: str, password: str, name: str):
+    uuid_id = str(uuid.uuid4())
+    insert_record('store_users', attributes=['id', 'email', 'name'], values=[uuid_id, user_email, name])
+    insert_record('roles', attributes=['id', 'role'], values=[uuid_id, 'STORE_ADMIN'])
+    insert_record('passwords', attributes=['id', 'password'], values=[uuid_id, password])
+
+def insert_user_data(user_email: str, user: User):
+    update_record('store_users', attributes=['name', 'picture'], values=[user.name, user.picture], conditions={'email': user_email})
 
 def get_user(email: str):
-    user = read_record('roles', conditions={'email': email})
-    user_data = read_record('store_users', conditions={'id': user.get('id')})
+    user_data = read_record('store_users', conditions={'email': email})
     return user_data
 
 api = APIRouter(prefix="/api")
 
-@api.post("/auth/google", response_model=Token)
+@api.post("/auth/store/google", response_model=Token)
 async def google_auth(user: User):
     print(user)
     if not check_role(user.email):
         raise HTTPException(status_code=401, detail="Unauthorized")
     else:
-        user_id = check_if_user_data_exists(user.email)
-        if not user_id:
-            insert_user(user_id, user)
+        if not check_if_user_data_exists(user.email):
+            insert_user_data(user.email, user)
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
@@ -145,59 +163,43 @@ async def google_auth(user: User):
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-def validate_user(email: str, password: str) -> bool:
-    """
-    Validates a user's email and password.
+@api.post("/auth/store/register", response_model=Token)
+async def register(user: UserRegister):
+    print(user)
+    if check_if_user_email_exists(user.email):
+        raise HTTPException(status_code=400, detail="Email already registered")
     
-    Args:
-        email (str): The user's email.
-        password (str): The user's plaintext password.
-    
-    Returns:
-        bool: True if the email and password are valid, False otherwise.
-    """
-    # Fetch the user's data from the 'store_users' table
-    user_data = read_record('store_users', conditions={'adress': email})
-    if user_data is None:
-        return False  # User does not exist in the 'store_users' table
-
-    # Retrieve the stored hashed password
-    stored_hashed_password = user_data.get('password_hash')
-    if stored_hashed_password is None:
-        return False  # No password hash stored for the user
-
-    # Verify the provided password against the stored hash
-    try:
-        # Decode the stored hash to get the original password (for comparison)
-        decoded_password = jwt.decode(stored_hashed_password, SECRET_KEY, algorithms=[ALGORITHM])
-        if decoded_password.get('password') != password:
-            return False  # Passwords do not match
-    except JWTError:
-        return False  # Invalid token or hash
-
-    return True  # Email and password are valid
-
-@api.post("/auth/login", response_model=Token)
+    insert_user_registration_data(user.email, encode_password(user.password), user.name)
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.email, "is_admin": True}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+@api.post("/auth/store/login", response_model=Token)
 async def login(user: UserLogin):
-    # Validate the user's email and password
-    if not validate_user(user.email, user.password):
-        raise HTTPException(status_code=401, detail="Invalid email or password")
-
-    # Check the user's role (optional, if needed)
+    print(user)
     if not check_role(user.email):
         raise HTTPException(status_code=401, detail="Unauthorized")
-
-    # Insert user data if it doesn't exist (optional, if needed)
-    user_id = check_if_user_data_exists(user.email)
-    if not user_id:
-        insert_user(user_id, user)
-
-    # Generate an access token
+    user_email = user.email
+    user_password = user.password
+    user_data = read_record('store_users', conditions={'email': user_email})
+    if user_data is None:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    password_hash = encode_password(user_password)
+    password_data = read_record('passwords', conditions={'id': user_data.get('id')})
+    if password_data is None:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    if password_data.get('password') != password_hash:
+        raise HTTPException(status_code=401, detail="Unauthorized")
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.email, "is_admin": True}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "message": "Login successful" if password_data.get('password') == password_hash else "Login failed"
+    }
 
 @api.get("/users/me", response_model=User)
 async def read_users_me(current_user: TokenData = Depends(get_current_user)):
@@ -206,13 +208,11 @@ async def read_users_me(current_user: TokenData = Depends(get_current_user)):
         "email": current_user.email,
         "name": user.get('name'),  
         "picture": user.get('picture'),  
-        "given_name": user.get('given_name'),  
-        "family_name": user.get('family_name')  
+        "address": user.get('address')
     }
 
 @api.get("/products")
-#async def get_products(current_user: TokenData = Depends(is_admin_user)):
-async def get_products():
+async def get_products(current_user: TokenData = Depends(is_admin_user)):
     products = read_records('products')
     # print(products)
     return products
