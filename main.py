@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException, Depends, Header, status, APIRouter
+from fastapi import FastAPI, HTTPException, Depends, Header, status, APIRouter, UploadFile, File
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
@@ -8,6 +9,7 @@ import uuid
 import hashlib
 from utils.db_utils import *
 from base_models.models import *
+import os
 
 load_dotenv()
 
@@ -268,6 +270,62 @@ async def create_category(category: CategoryCreate, current_user: TokenData = De
 async def delete_category(category_id: str, current_user: TokenData = Depends(is_admin_user)):
     delete_record('categories', conditions={'id': category_id})
     return {"message": "Category deleted successfully"}
+
+IMAGE_BASE_DIR = "./images"
+
+@api.get("/image/{image_id}")
+async def get_image(image_id: str): #current_user: TokenData = Depends(is_admin_user) ommitted for testing
+
+    image_metadata = read_record('images', conditions={'image_id': image_id})
+    if image_metadata is None:
+        raise HTTPException(status_code=404, detail="Image not found")
+    file_path = os.path.join(IMAGE_BASE_DIR, image_metadata['file_path'], image_metadata['file_name'])
+    
+    return FileResponse(
+        path=file_path,
+        media_type=image_metadata['mime_type'],
+        filename=image_metadata['file_name']
+    )
+
+@api.post("/image")
+async def upload_image(file: UploadFile = File(...)):
+    image_id = str(uuid.uuid4())
+    
+    # Create a directory structure based on the current date (e.g., 2023/10)
+    current_date = datetime.now()
+    year = current_date.year
+    month = current_date.month
+    file_path = os.path.join(str(year), str(month))
+    
+    # Ensure the directory exists
+    full_dir_path = os.path.join(IMAGE_BASE_DIR, file_path)
+    os.makedirs(full_dir_path, exist_ok=True)
+    
+    # Save the file to the filesystem
+    file_extension = os.path.splitext(file.filename)[1]  # Get the file extension
+    file_name = f"{image_id}{file_extension}"  # Use the UUID as the file name
+    full_file_path = os.path.join(full_dir_path, file_name)
+    
+    try:
+        # Write the file to the filesystem
+        with open(full_file_path, "wb") as buffer:
+            buffer.write(await file.read())
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save image file: {e}")
+    
+    # Insert metadata into the database
+    try:
+        insert_record(
+            'images',
+            attributes=['image_id', 'file_path', 'file_name', 'mime_type'],
+            values=[image_id, file_path, file_name, file.content_type]
+        )
+    except Exception as e:
+        # Clean up the saved file if database insertion fails
+        os.remove(full_file_path)
+        raise HTTPException(status_code=500, detail=f"Failed to insert image metadata: {e}")
+    
+    return { "message": "Image uploaded successfully" }
 
 app.include_router(api)
 
