@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Depends, Header, status, APIRouter, 
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
+from fastapi.staticfiles import StaticFiles
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 import json
@@ -10,12 +11,15 @@ import hashlib
 from utils.db_utils import *
 from base_models.models import *
 import os
-from fastapi.staticfiles import StaticFiles
 
 load_dotenv()
 
 BACKEND_URL = os.getenv("BACKEND_URL")
-IMAGE_BASE_DIR = "./images"
+IMAGE_BASE_DIR = os.getenv("IMAGE_BASE_DIR")
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
 
 app = FastAPI()
 app.mount("/images", StaticFiles(directory=IMAGE_BASE_DIR), name="images")
@@ -31,14 +35,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# SECRET_KEY = os.getenv("SECRET_KEY")
-# ALGORITHM = os.getenv("ALGORITHM")
-# ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
-
-SECRET_KEY = "your_secret_key"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 

@@ -34,6 +34,15 @@ This repository contains the backend code for the Second Chance project. It is b
     DB_PASSWORD=your_db_password
     DB_HOST=your_db_host
     DB_PORT=your_db_port
+
+    
+    IMAGE_BASE_DIR=./images
+
+    SECRET_KEY = "your_secret_key"
+    ALGORITHM = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+    BACKEND_URL = http://localhost:8000
     ```
 
 5. Start the PostgreSQL Database Server (if not already running) using pgAdmin or command line tools. 
