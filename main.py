@@ -288,7 +288,8 @@ async def get_image(image_id: str): #current_user: TokenData = Depends(is_admin_
     )
 
 @api.post("/image")
-async def upload_image(file: UploadFile = File(...)):
+async def upload_image(file: UploadFile = File(...)): # current_user: TokenData = Depends(is_admin_user) ommitted for testing
+
     image_id = str(uuid.uuid4())
     
     # Create a directory structure based on the current date (e.g., 2023/10)
@@ -327,10 +328,11 @@ async def upload_image(file: UploadFile = File(...)):
     
     return { "message": "Image uploaded successfully" }
 
+@api.delete("/images/{image_id}") # current_user: TokenData = Depends(is_admin_user) ommitted for testing
+async def delete_product(image_id: str):
+    delete_record('images', conditions={'image_id': image_id})
+    return {"message": "Image deleted successfully"}
+
 app.include_router(api)
 
-#products properties in json data
-#TO DO: Implement image upload to database
-#Something to get images
-#image endpoint based on id : Create, Read, Delete
 #TO DO: Orders : Create, Update, Read, Delete
