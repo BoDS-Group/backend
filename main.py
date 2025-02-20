@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends, Header, status, APIRouter, UploadFile, File
+from fastapi import FastAPI, HTTPException, Depends, Header, status, APIRouter, UploadFile, File, Form
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
@@ -10,10 +10,15 @@ import hashlib
 from utils.db_utils import *
 from base_models.models import *
 import os
+from fastapi.staticfiles import StaticFiles
 
 load_dotenv()
 
+BACKEND_URL = os.getenv("BACKEND_URL")
+IMAGE_BASE_DIR = "./images"
+
 app = FastAPI()
+app.mount("/images", StaticFiles(directory=IMAGE_BASE_DIR), name="images")
 
 origins = [
     "http://localhost:3000",
@@ -108,6 +113,12 @@ def insert_user_data(user_email: str, user: User):
 def get_user(email: str):
     user_data = read_record('store_users', conditions={'email': email})
     return user_data
+
+def update_product_img_id(img_id: str, product_id: str):
+    product = read_record('products', conditions={'id': product_id})
+    img_ids = product.get('images')
+    img_ids.append(img_id)
+    update_record('products', attributes=['images'], values=[img_ids], conditions={'id': product_id})
 
 api = APIRouter(prefix="/api")
 
@@ -271,25 +282,19 @@ async def delete_category(category_id: str, current_user: TokenData = Depends(is
     delete_record('categories', conditions={'id': category_id})
     return {"message": "Category deleted successfully"}
 
-IMAGE_BASE_DIR = "./images"
-
 @api.get("/image/{image_id}")
 async def get_image(image_id: str): #current_user: TokenData = Depends(is_admin_user) ommitted for testing
-
     image_metadata = read_record('images', conditions={'image_id': image_id})
     if image_metadata is None:
         raise HTTPException(status_code=404, detail="Image not found")
-    file_path = os.path.join(IMAGE_BASE_DIR, image_metadata['file_path'], image_metadata['file_name'])
+
+    # Constructing the URL for the image
+    image_url = f"{BACKEND_URL}/images/{image_metadata['file_path']}/{image_metadata['file_name']}"
     
-    return FileResponse(
-        path=file_path,
-        media_type=image_metadata['mime_type'],
-        filename=image_metadata['file_name']
-    )
+    return {"image_url": image_url}
 
-@api.post("/image")
-async def upload_image(file: UploadFile = File(...)): # current_user: TokenData = Depends(is_admin_user) ommitted for testing
-
+@api.post("/image/upload")
+async def upload_image(file: UploadFile = File(...), product_id: str = Form(...)): # current_user: TokenData = Depends(is_admin_user) ommitted for testing
     image_id = str(uuid.uuid4())
     
     # Create a directory structure based on the current date (e.g., 2023/10)
@@ -321,15 +326,16 @@ async def upload_image(file: UploadFile = File(...)): # current_user: TokenData 
             attributes=['image_id', 'file_path', 'file_name', 'mime_type'],
             values=[image_id, file_path, file_name, file.content_type]
         )
+        update_product_img_id(image_id, product_id)
     except Exception as e:
         # Clean up the saved file if database insertion fails
         os.remove(full_file_path)
         raise HTTPException(status_code=500, detail=f"Failed to insert image metadata: {e}")
     
-    return { "message": "Image uploaded successfully" }
+    return { "image_id": [image_id] }
 
 @api.delete("/images/{image_id}") # current_user: TokenData = Depends(is_admin_user) ommitted for testing
-async def delete_product(image_id: str):
+async def delete_product_image(image_id: str):
     # Fetch image metadata from the database
     image_metadata = read_record('images', conditions={'image_id': image_id})
     if image_metadata is None:
