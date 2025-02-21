@@ -401,13 +401,13 @@ async def get_order(order_id: str):#, current_user: TokenData = Depends(is_admin
 @api.post("/orders")
 async def create_order(order: OrderCreate):#,current_user: TokenData = Depends(is_admin_user)):
     # Convert properties dictionary to JSON string
-    properties_json = json.dumps(order.properties) if order.properties else None
+    line_items_json = json.dumps(order.line_items) if order.line_items else None
 
     # Insert the new product into the database
     insert_record(
         'orders',
         attributes=['line_items', 'name', 'email', 'city', 'postal_code', 'street_address', 'country', 'paid'],
-        values=[order.line_items, order.name, order.email, order.city, order.postal_code, order.street_address, order.country, order.paid]
+        values=[line_items_json, order.name, order.email, order.city, order.postal_code, order.street_address, order.country, order.paid]
     )
     return {"message": "Order created successfully"}
 
@@ -438,5 +438,3 @@ async def delete_order(order_id: str):#, current_user: TokenData = Depends(is_ad
 
 
 app.include_router(api)
-
-#TO DO: Orders : Create, Update, Read, Delete

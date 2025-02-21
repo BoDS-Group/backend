@@ -39,6 +39,26 @@ class ProductUpdate(BaseModel):
     category: Optional[int] = None
     properties: Optional[dict] = None
 
+class OrderCreate(BaseModel):
+    line_items: dict
+    name: str
+    email: str
+    city: str
+    postal_code: str
+    street_address: str
+    country: str
+    paid: bool
+
+class OrderUpdate(BaseModel):
+    line_items: Optional[dict] = None
+    name: Optional[str] = None
+    email: Optional[str] = None
+    city: Optional[str] = None
+    postal_code: Optional[str] = None
+    street_address: Optional[str] = None
+    country: Optional[str] = None
+    paid: bool
+
 class CategoryCreate(BaseModel):
     name: str
     parent: Optional[int] = None
