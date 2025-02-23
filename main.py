@@ -436,5 +436,18 @@ async def delete_order(order_id: str):#, current_user: TokenData = Depends(is_ad
     delete_record('orders', conditions={'id': order_id})
     return {"message": "Order deleted successfully"}
 
+# Stores
+
+@api.get("/stores/{store_id}/profile")
+async def get_store_profile(store_id: str):
+    profile = read_record('store_profiles', conditions={'id': store_id})
+    if profile is None:
+        raise HTTPException(status_code=404, detail="profile not found")
+    print(profile)
+    return profile
+
+# @api.get("/stores/{store_id}/dashboard")
+# async def get_store_dashboard(store_id: str):
+
 
 app.include_router(api)
