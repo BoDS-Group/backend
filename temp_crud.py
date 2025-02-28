@@ -1,6 +1,11 @@
 from utils.db_utils import *
 import uuid
 import json
+import hashlib
+
+def encode_password(password: str) -> str:
+    sha_signature = hashlib.sha256(password.encode()).hexdigest()
+    return sha_signature
 
 # Define the table name and attributes
 table_name = 'roles'
@@ -62,8 +67,42 @@ attributes = {
     'FOREIGN KEY (id)': 'REFERENCES store_users(id)'
 }
 
+table_name = 'system_admin'
+attributes = {
+    'id': 'UUID PRIMARY KEY',
+    'name': 'VARCHAR(255) NOT NULL',
+    'email': 'VARCHAR(255) NOT NULL',
+    'password': 'VARCHAR(255) NOT NULL',
+    'phone_number': 'VARCHAR',
+    'created_at': 'TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP',
+    'updated_at': 'TIMESTAMPTZ',
+    'deleted_at': 'TIMESTAMPTZ'
+}
+
+table_name = 'cities'
+attributes = {
+    'id': 'SERIAL PRIMARY KEY',
+    'city': 'VARCHAR(50) NOT NULL',
+    'lat': 'VARCHAR(20)',
+    'lng': 'VARCHAR(20)'
+}
+
 # create_table(table_name, attributes)
 # print("Table Name:", table_name)
+
+# record_id = str(uuid.uuid4())
+# name = 'Md Hamidur Rahman Khan'
+# email = 'hrk.admin@sc.com'
+# password = encode_password('test1234')  
+# phone_number = '1234567890'
+
+# insert_record(
+#     table_name,
+#     attributes=['id', 'name', 'email', 'password', 'phone_number'],
+#     values=[record_id, name, email, password, phone_number]
+# )
+
+# print(f"Inserted test entry with ID: {record_id}")
 
 # Insert a record
 # record_id = str(uuid.uuid4())

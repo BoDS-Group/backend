@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from utils.db_utils import *
 from base_models.models import *
 import json
-from routers.authStore import is_admin_user
+from routers.auth_store import is_admin_user
 
 router = APIRouter(prefix="/api/categories")
 

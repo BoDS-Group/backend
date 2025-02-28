@@ -14,6 +14,11 @@ class User(BaseModel):
     name: str
     picture: str
 
+class SysAdminUser(BaseModel):
+    email: str
+    name: str
+    phone_number: Optional[str] = None
+
 class UserRegister(BaseModel):
     name: str
     email: str
