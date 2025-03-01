@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 class Token(BaseModel):
     access_token: str
@@ -77,3 +77,6 @@ class StoreCreate(BaseModel):
     storeLocation: str
     storeAdminName: str
     storeAdminEmail: str
+    
+class ProductIDs(BaseModel):
+    ids: List[int]

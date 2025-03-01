@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from utils.db_utils import *
 from base_models.models import *
 import os
-from routers import auth_admin, admin, auth_store, products, categories, orders, stores, image
+from routers import auth_admin, admin, auth_store, orders, store_categories, store_products, stores, image, products
 
 IMAGE_BASE_DIR = os.getenv("IMAGE_BASE_DIR")
 
@@ -14,6 +14,7 @@ app.mount("/images", StaticFiles(directory=IMAGE_BASE_DIR), name="images")
 origins = [
     "http://localhost:3000",
     "http://localhost:3001",
+    "http://localhost:3002",
 ]
 
 app.add_middleware(
@@ -26,9 +27,10 @@ app.add_middleware(
 
 app.include_router(auth_admin.router)
 app.include_router(admin.router)
-app.include_router(auth_store.router)
-app.include_router(categories.router)
 app.include_router(image.router)
 app.include_router(orders.router)
-app.include_router(products.router)
+app.include_router(auth_store.router)
+app.include_router(store_categories.router)
+app.include_router(store_products.router)
 app.include_router(stores.router)
+app.include_router(products.router)
