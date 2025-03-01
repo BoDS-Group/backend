@@ -16,6 +16,12 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+def get_store_id(email: str):
+    store = read_record('store_users', conditions={'email': email})
+    if store is None:
+        return None
+    return store.get('store_id')
+
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
     if expires_delta:
@@ -42,7 +48,8 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         is_admin: bool = payload.get("is_admin", False)
         if email is None:
             raise credentials_exception
-        token_data = TokenData(email=email, is_admin=is_admin)
+        store_id = get_store_id(email)
+        token_data = TokenData(email=email, is_admin=is_admin, store_id=store_id)
     except JWTError:
         raise credentials_exception
     return token_data

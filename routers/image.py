@@ -1,7 +1,8 @@
 from fastapi import HTTPException, APIRouter, UploadFile, File, Form
 from utils.db_utils import *
 from base_models.models import *
-import uuid, datetime
+import uuid
+from datetime import datetime, timedelta
 
 router = APIRouter(prefix="/api/image")
 
@@ -26,9 +27,9 @@ async def get_image(image_id: str): #current_user: TokenData = Depends(is_admin_
     return {"image_url": image_url}
 
 @router.post("/upload")
-async def upload_image(file: UploadFile = File(...), product_id: str = Form(...)): # current_user: TokenData = Depends(is_admin_user) ommitted for testing
+async def upload_image(file: UploadFile = File(...), product_id: str = Form(...)): # current_user: TokenData = Depends(is_admin_user) omitted for testing
     image_id = str(uuid.uuid4())
-    
+    print(product_id)
     # Create a directory structure based on the current date (e.g., 2023/10)
     current_date = datetime.now()
     year = current_date.year
@@ -49,6 +50,7 @@ async def upload_image(file: UploadFile = File(...), product_id: str = Form(...)
         with open(full_file_path, "wb") as buffer:
             buffer.write(await file.read())
     except Exception as e:
+        print(f"Failed to save image file: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to save image file: {e}")
     
     # Insert metadata into the database
@@ -62,9 +64,10 @@ async def upload_image(file: UploadFile = File(...), product_id: str = Form(...)
     except Exception as e:
         # Clean up the saved file if database insertion fails
         os.remove(full_file_path)
+        print(f"Failed to insert image metadata: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to insert image metadata: {e}")
     
-    return { "image_id": [image_id] }
+    return {"image_id": [image_id]}
 
 @router.delete("/{image_id}") # current_user: TokenData = Depends(is_admin_user) ommitted for testing
 async def delete_product_image(image_id: str):

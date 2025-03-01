@@ -125,4 +125,5 @@ async def create_product(store: StoreCreate , current_user: TokenData = Depends(
     )
     return {
         "message": "Product created successfully",
-        "store_id": store_id}
+        "store_id": store_id
+        }

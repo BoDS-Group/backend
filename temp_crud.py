@@ -35,19 +35,6 @@ attributes = {
     'properties': 'JSONB'
 }
 
-table_name = 'products'
-attributes = {
-    'id': 'SERIAL PRIMARY KEY',
-    'title': 'VARCHAR(255) NOT NULL',
-    'description': 'TEXT',
-    'price': 'NUMERIC(10, 2) NOT NULL',
-    'images': 'TEXT[]',
-    'category': 'INTEGER REFERENCES categories(id)',
-    'properties': 'JSONB',
-    'created_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP',
-    'updated_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP'
-}
-
 table_name = 'orders'
 attributes = {
     'id': 'SERIAL PRIMARY KEY',
@@ -102,7 +89,30 @@ attributes = {
     'home_delivery': 'BOOLEAN'
 }
 
+table_name = 'products'
+attributes = {
+    'id': 'SERIAL PRIMARY KEY',
+    'title': 'VARCHAR(255) NOT NULL',
+    'description': 'TEXT',
+    'price': 'NUMERIC(10, 2) NOT NULL',
+    'images': 'TEXT[]',
+    'category': 'INTEGER REFERENCES categories(id)',
+    'properties': 'JSONB',
+    'store_id': 'UUID REFERENCES stores(id)',
+    'barcode': 'VARCHAR',
+    'carbon_savings': 'VARCHAR(127)',
+    'status': 'BOOLEAN',
+    'created_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP',
+    'updated_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP'
+}
+
 # create_table(table_name, attributes)
+# print("Table Name:", table_name)
+
+# alter_table(table_name='products', action='ADD', column_name='store_id', column_type='UUID REFERENCES stores(id)')
+# alter_table(table_name='products', action='ADD', column_name='barcode', column_type='VARCHAR')
+# alter_table(table_name='products', action='ADD', column_name='carbon_savings', column_type='VARCHAR(127)')
+# alter_table(table_name='products', action='ADD', column_name='status', column_type='BOOLEAN')
 # print("Table Name:", table_name)
 
 # drop_table('stores')

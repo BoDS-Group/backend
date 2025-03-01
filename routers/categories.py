@@ -9,7 +9,7 @@ router = APIRouter(prefix="/api/categories")
 @router.get("/")
 async def get_products(current_user: TokenData = Depends(is_admin_user)):
     categories = read_records('categories')
-    print(categories)
+    # print(categories)
     return categories
 
 @router.put("/{category_id}")

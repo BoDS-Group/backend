@@ -324,6 +324,94 @@ def delete_record(table_name, conditions, returning_columns=None):
                 return dictfetchall(cursor)
     return None
 
+def alter_table(table_name, action, column_name=None, column_type=None):
+    """
+    Alter the specified table in the database.
+    
+    Parameters:
+      - table_name (str): Name of the table to alter.
+      - action (str): The action to perform (e.g., 'ADD', 'DROP', 'ALTER').
+      - column_name (str, optional): Name of the column to add, drop, or alter.
+      - column_type (str, optional): Data type of the column to add or alter.
+    
+    Returns:
+      - None
+    """
+    table = safe_identifier(table_name)
+    if action.upper() not in ['ADD', 'DROP', 'ALTER']:
+        raise ValueError("Invalid action. Must be 'ADD', 'DROP', or 'ALTER'.")
+
+    if action.upper() == 'ADD':
+        if not column_name or not column_type:
+            raise ValueError("Column name and type must be provided for ADD action.")
+        column = safe_identifier(column_name)
+        query = f"ALTER TABLE {table} ADD COLUMN {column} {column_type}"
+    elif action.upper() == 'DROP':
+        if not column_name:
+            raise ValueError("Column name must be provided for DROP action.")
+        column = safe_identifier(column_name)
+        query = f"ALTER TABLE {table} DROP COLUMN {column}"
+    elif action.upper() == 'ALTER':
+        if not column_name or not column_type:
+            raise ValueError("Column name and new type must be provided for ALTER action.")
+        column = safe_identifier(column_name)
+        query = f"ALTER TABLE {table} ALTER COLUMN {column} TYPE {column_type}"
+
+    with get_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(query)
+            conn.commit()
+
+def get_table_schema(table_name):
+    """
+    Retrieve the schema of the specified table.
+    
+    Parameters:
+      - table_name (str): Name of the table.
+    
+    Returns:
+      - A dictionary where keys are column names and values are their data types.
+    """
+    table = safe_identifier(table_name)
+    query = f"""
+    SELECT column_name, data_type
+    FROM information_schema.columns
+    WHERE table_name = %s
+    """
+    
+    with get_connection() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(query, (table,))
+            columns = cursor.fetchall()
+    
+    return {col['column_name']: col['data_type'] for col in columns}
+
+def update_table_schema(table_name, new_attributes):
+    """
+    Update the schema of the specified table based on the new attributes.
+    
+    Parameters:
+      - table_name (str): Name of the table.
+      - new_attributes (dict): Dictionary of new column names and their data types.
+    
+    Returns:
+      - None
+    """
+    existing_schema = get_table_schema(table_name)
+    
+    for column_name, column_type in new_attributes.items():
+        if column_name not in existing_schema:
+            # Add new column
+            alter_table(table_name, 'ADD', column_name, column_type)
+        elif existing_schema[column_name] != column_type:
+            # Alter existing column
+            alter_table(table_name, 'ALTER', column_name, column_type)
+    
+    for column_name in existing_schema.keys():
+        if column_name not in new_attributes:
+            # Drop column that is not in new attributes
+            alter_table(table_name, 'DROP', column_name)
+
 def drop_table(table_name):
     """
     Drop the specified table from the database.

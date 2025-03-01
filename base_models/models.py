@@ -8,6 +8,7 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     email: Optional[str] = None
     is_admin: Optional[bool] = False
+    store_id: Optional[str] = None
 
 class User(BaseModel):
     email: str
