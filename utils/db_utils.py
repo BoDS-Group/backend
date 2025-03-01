@@ -188,6 +188,30 @@ def read_record(table_name, attributes=None, conditions=None):
             cursor.execute(query, params)
             return dictfetchone(cursor)
 
+def read_column(table_name, column_name, conditions=None):
+    """
+    Retrieve a specific column from the specified table.
+    
+    Parameters:
+      - table_name (str): Name of the table.
+      - column_name (str): Name of the column to retrieve.
+      - conditions (dict, optional): A dictionary of conditions to build the WHERE clause.
+    
+    Returns:
+      - A list of values from the specified column.
+    """
+    table = safe_identifier(table_name)
+    column = safe_identifier(column_name)
+    query = f"SELECT {column} FROM {table} "
+    
+    where_clause, params = build_where_clause(conditions)
+    query += where_clause
+
+    with get_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(query, params)
+            return [row[0] for row in cursor.fetchall()]
+
 def read_by_page(table_name, page: int = 1, items_per_page: int = None, attributes=None, conditions=None):
     """
     Retrieve rows from the specified table, with optional pagination.
@@ -299,3 +323,21 @@ def delete_record(table_name, conditions, returning_columns=None):
             if returning_columns:
                 return dictfetchall(cursor)
     return None
+
+def drop_table(table_name):
+    """
+    Drop the specified table from the database.
+    
+    Parameters:
+      - table_name (str): Name of the table to drop.
+    
+    Returns:
+      - None
+    """
+    table = safe_identifier(table_name)
+    query = f"DROP TABLE IF EXISTS {table} CASCADE"
+    
+    with get_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(query)
+            conn.commit()

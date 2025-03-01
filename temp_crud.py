@@ -2,6 +2,7 @@ from utils.db_utils import *
 import uuid
 import json
 import hashlib
+import pandas as pd
 
 def encode_password(password: str) -> str:
     sha_signature = hashlib.sha256(password.encode()).hexdigest()
@@ -22,6 +23,8 @@ attributes = {
     'name': 'VARCHAR(127) NOT NULL',
     'picture': 'VARCHAR(255)',
     'address': 'VARCHAR(255)',
+    'store_id': 'UUID',
+    'FOREIGN KEY (store_id)': 'REFERENCES stores(id)'
 }
 
 table_name = 'categories'
@@ -87,8 +90,38 @@ attributes = {
     'lng': 'VARCHAR(20)'
 }
 
+table_name = 'stores'
+attributes = {
+    'id': 'UUID PRIMARY KEY',
+    'name': 'VARCHAR(127) NOT NULL',
+    'description': 'TEXT',
+    'city': 'VARCHAR(50) NOT NULL',
+    'location': 'VARCHAR(255) NOT NULL',
+    'image': 'UUID',
+    'sustainability_achievement': 'TEXT',
+    'home_delivery': 'BOOLEAN'
+}
+
 # create_table(table_name, attributes)
 # print("Table Name:", table_name)
+
+# drop_table('stores')
+
+# csv_file_path = 'data/fi.csv'
+# cities_data = pd.read_csv(csv_file_path)
+
+# # Insert data into the cities table
+# for index, row in cities_data.iterrows():
+#     city = row['city']
+#     lat = row['lat']
+#     lng = row['lng']
+#     insert_record(
+#         table_name,
+#         attributes=['city', 'lat', 'lng'],
+#         values=[city, lat, lng]
+#     )
+
+# print("Inserted data from CSV into cities table")
 
 # record_id = str(uuid.uuid4())
 # name = 'Md Hamidur Rahman Khan'
@@ -157,3 +190,9 @@ attributes = {
 
 # delete_record('categories', conditions={'id': 1})
 # print("Deleted category with ID: 1")
+
+# def get_all_cities():
+#     cities = read_column(table_name='cities', column_name='city')
+#     return cities
+
+# print(get_all_cities())

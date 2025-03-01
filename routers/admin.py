@@ -1,20 +1,25 @@
-from fastapi import HTTPException, APIRouter, UploadFile, File, Form
+from fastapi import FastAPI, HTTPException, Depends, status, APIRouter, UploadFile, File, Form
+from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError, jwt
+from datetime import datetime, timedelta
+import uuid, hashlib, os
 from utils.db_utils import *
 from base_models.models import *
-import uuid, datetime
+from routers.auth_admin import is_admin_user
 
-router = APIRouter(prefix="/api/image")
+router = APIRouter(prefix="/api/admin")
 
 BACKEND_URL = os.getenv("BACKEND_URL")
 IMAGE_BASE_DIR = os.getenv("IMAGE_BASE_DIR")
 
-def update_product_img_id(img_id: str, product_id: str):
-    product = read_record('products', conditions={'id': product_id})
-    img_ids = product.get('images')
-    img_ids.append(img_id)
-    update_record('products', attributes=['images'], values=[img_ids], conditions={'id': product_id})
+def get_all_cities():
+    cities = read_column(table_name='cities', column_name='city')
+    return cities
 
-@router.get("/{image_id}")
+def update_store_img_id(img_id: str, store_id: str):
+    update_record('stores', attributes=['image'], values=[img_id], conditions={'id': store_id})
+
+@router.get("/image/{image_id}")
 async def get_image(image_id: str): #current_user: TokenData = Depends(is_admin_user) ommitted for testing
     image_metadata = read_record('images', conditions={'image_id': image_id})
     if image_metadata is None:
@@ -25,8 +30,8 @@ async def get_image(image_id: str): #current_user: TokenData = Depends(is_admin_
     
     return {"image_url": image_url}
 
-@router.post("/upload")
-async def upload_image(file: UploadFile = File(...), product_id: str = Form(...)): # current_user: TokenData = Depends(is_admin_user) ommitted for testing
+@router.post("/image/upload")
+async def upload_image(file: UploadFile = File(...), store_id: str = Form(...)): # current_user: TokenData = Depends(is_admin_user) ommitted for testing
     image_id = str(uuid.uuid4())
     
     # Create a directory structure based on the current date (e.g., 2023/10)
@@ -58,7 +63,7 @@ async def upload_image(file: UploadFile = File(...), product_id: str = Form(...)
             attributes=['image_id', 'file_path', 'file_name', 'mime_type'],
             values=[image_id, file_path, file_name, file.content_type]
         )
-        update_product_img_id(image_id, product_id)
+        update_store_img_id(image_id, store_id)
     except Exception as e:
         # Clean up the saved file if database insertion fails
         os.remove(full_file_path)
@@ -66,7 +71,7 @@ async def upload_image(file: UploadFile = File(...), product_id: str = Form(...)
     
     return { "image_id": [image_id] }
 
-@router.delete("/{image_id}") # current_user: TokenData = Depends(is_admin_user) ommitted for testing
+@router.delete("image/{image_id}") # current_user: TokenData = Depends(is_admin_user) ommitted for testing
 async def delete_product_image(image_id: str):
     # Fetch image metadata from the database
     image_metadata = read_record('images', conditions={'image_id': image_id})
@@ -87,3 +92,32 @@ async def delete_product_image(image_id: str):
 
     delete_record('images', conditions={'image_id': image_id})
     return {"message": "Image deleted successfully"}
+
+@router.get("/cities")
+async def get_cities():
+    cities = get_all_cities()
+    return cities
+
+@router.post("/new-store")
+async def create_product(store: StoreCreate , current_user: TokenData = Depends(is_admin_user)):
+    print(store)
+    store_id = str(uuid.uuid4())
+    store_users_id = str(uuid.uuid4())
+    insert_record(
+        'stores',
+        attributes=['id', 'name', 'description', 'city', 'location'],
+        values=[store_id, store.storeName, store.storeDescription, store.city, store.storeLocation]
+    )
+    insert_record(
+        'store_users',
+        attributes=['id', 'email', 'name', 'store_id'],
+        values=[store_users_id, store.storeAdminEmail, store.storeAdminName, store_id]
+    )
+    insert_record(
+        'roles',
+        attributes=['id', 'role'],
+        values=[store_users_id, 'STORE_ADMIN']
+    )
+    return {
+        "message": "Product created successfully",
+        "store_id": store_id}

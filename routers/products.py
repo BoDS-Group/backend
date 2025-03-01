@@ -23,7 +23,7 @@ async def get_product(product_id: str, current_user: TokenData = Depends(is_admi
     return product 
 
 @router.post("/")
-async def create_product(product: ProductCreate,current_user: TokenData = Depends(is_admin_user)):
+async def create_product(product: ProductCreate, current_user: TokenData = Depends(is_admin_user)):
     # Convert properties dictionary to JSON string
     properties_json = json.dumps(product.properties) if product.properties else None
 

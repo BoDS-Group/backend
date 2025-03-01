@@ -68,3 +68,11 @@ class CategoryCreate(BaseModel):
     name: str
     parent: Optional[int] = None
     properties: Optional[dict] = None
+    
+class StoreCreate(BaseModel):
+    storeName: str
+    storeDescription: Optional[str] = None
+    city: str
+    storeLocation: str
+    storeAdminName: str
+    storeAdminEmail: str
