@@ -12,7 +12,7 @@ class TokenData(BaseModel):
 class User(BaseModel):
     email: str
     name: str
-    picture: str
+    picture: Optional[str] = None
 
 class SysAdminUser(BaseModel):
     email: str

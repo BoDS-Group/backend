@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import uuid, hashlib, os
 from utils.db_utils import *
 from base_models.models import *
-from routers.auth_admin import is_admin_user
+from routers.auth_admin import is_admin_user, encode_password
 
 router = APIRouter(prefix="/api/admin")
 
@@ -117,6 +117,11 @@ async def create_product(store: StoreCreate , current_user: TokenData = Depends(
         'roles',
         attributes=['id', 'role'],
         values=[store_users_id, 'STORE_ADMIN']
+    )
+    insert_record(
+        'passwords',
+        attributes=['id', 'password'],
+        values=[store_users_id, encode_password("test1234")]
     )
     return {
         "message": "Product created successfully",

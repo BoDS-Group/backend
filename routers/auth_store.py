@@ -149,6 +149,6 @@ async def read_users_me(current_user: TokenData = Depends(get_current_user)):
     return {
         "email": current_user.email,
         "name": user.get('name'),  
-        "picture": user.get('picture'),  
+        "picture": user.get('picture') or None,  
         "address": user.get('address')
     }
