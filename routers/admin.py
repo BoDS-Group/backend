@@ -127,3 +127,23 @@ async def create_product(store: StoreCreate , current_user: TokenData = Depends(
         "message": "Product created successfully",
         "store_id": store_id
         }
+
+@router.get("/stores")
+async def get_store_users_with_stores(current_user: TokenData = Depends(is_admin_user)):
+    attributes = [
+        "store_users.id AS user_id", 
+        "store_users.email AS store_admin_email", 
+        "store_users.name AS store_admin_name", 
+        "stores.id AS store_id", 
+        "stores.name AS store_name", 
+        "stores.description", 
+        "stores.city", 
+        "stores.location"
+    ]
+    tables = ["store_users", "stores", "roles"]
+    join_conditions = ["store_users.store_id = stores.id", "store_users.id = roles.id"]
+    conditions = {"roles.role": "STORE_ADMIN"}
+
+    store_admins_with_stores = read_joined_records(tables, join_conditions, attributes, conditions)
+
+    return store_admins_with_stores

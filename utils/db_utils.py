@@ -32,9 +32,18 @@ def safe_identifier(identifier):
     for keyword in ALLOWED_KEYWORDS:
         if keyword in identifier:
             return identifier
-    if not re.match(r'^[A-Za-z_][A-Za-z0-9_]*$', identifier):
+    if not re.match(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$', identifier):
         raise ValueError(f"Unsafe identifier: {identifier}")
     return identifier
+
+def safe_identifier_with_alias(identifier):
+    """
+    Ensure the identifier with alias is safe to use in SQL queries.
+    """
+    parts = identifier.split(" AS ")
+    if len(parts) == 2:
+        return f"{safe_identifier(parts[0])} AS {safe_identifier(parts[1])}"
+    return safe_identifier(identifier)
 
 def build_where_clause(conditions):
     """
@@ -187,6 +196,35 @@ def read_record(table_name, attributes=None, conditions=None):
         with conn.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(query, params)
             return dictfetchone(cursor)
+def read_joined_records(tables, join_conditions, attributes=None, conditions=None):
+    """
+    Retrieve rows from multiple tables with join operations.
+    
+    Parameters:
+      - tables (list): List of table names to join.
+      - join_conditions (list): List of join conditions (e.g., ["table1.id = table2.store_id", "table2.id = table3.user_id"]).
+      - attributes (list, optional): List of columns to retrieve. If not provided, selects all columns (*).
+      - conditions (dict, optional): A dictionary of conditions to build the WHERE clause.
+    
+    Returns:
+      - A list of dictionaries representing the joined rows.
+    """
+    tables = [safe_identifier(table) for table in tables]
+    join_conditions = [condition.replace("=", " = ").replace(".", ".") for condition in join_conditions]
+    
+    select_clause = ", ".join(safe_identifier_with_alias(attr) for attr in attributes) if attributes else "*"
+    query = f"SELECT {select_clause} FROM {tables[0]} "
+    
+    for i in range(1, len(tables)):
+        query += f"JOIN {tables[i]} ON {join_conditions[i-1]} "
+    
+    where_clause, params = build_where_clause(conditions)
+    query += where_clause
+
+    with get_connection() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(query, params)
+            return dictfetchall(cursor)
 
 def read_column(table_name, column_name, conditions=None):
     """
@@ -424,6 +462,24 @@ def drop_table(table_name):
     """
     table = safe_identifier(table_name)
     query = f"DROP TABLE IF EXISTS {table} CASCADE"
+    
+    with get_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(query)
+            conn.commit()
+
+def delete_all_records(table_name):
+    """
+    Delete all records from the specified table.
+    
+    Parameters:
+      - table_name (str): Name of the table.
+    
+    Returns:
+      - None
+    """
+    table = safe_identifier(table_name)
+    query = f"DELETE FROM {table}"
     
     with get_connection() as conn:
         with conn.cursor() as cursor:

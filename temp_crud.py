@@ -106,6 +106,32 @@ attributes = {
     'updated_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP'
 }
 
+# attributes = [
+#         "store_users.id AS user_id", 
+#         "store_users.email", 
+#         "store_users.name AS user_name", 
+#         "stores.id AS store_id", 
+#         "stores.name AS store_name", 
+#         "stores.description", 
+#         "stores.city", 
+#         "stores.location"
+#     ]
+# tables = ["store_users", "stores", "roles"]
+# join_conditions = ["store_users.store_id = stores.id", "store_users.id = roles.id"]
+# conditions = {"roles.role": "STORE_ADMIN"}
+
+# system_admins_with_stores = read_joined_records(tables, join_conditions, attributes, conditions)
+# print(system_admins_with_stores)
+
+# delete_all_records("products")
+# delete_all_records("categories")
+# delete_all_records("images")
+# delete_all_records("orders")
+# # delete_all_records("passwords")
+# delete_all_records("roles")
+# delete_all_records("store_users")
+# delete_all_records("stores")
+
 # create_table(table_name, attributes)
 # print("Table Name:", table_name)
 
