@@ -96,7 +96,7 @@ attributes = {
     'description': 'TEXT',
     'price': 'NUMERIC(10, 2) NOT NULL',
     'images': 'TEXT[]',
-    'category': 'INTEGER REFERENCES categories(id)',
+    'category': 'INTEGER[]',
     'properties': 'JSONB',
     'store_id': 'UUID REFERENCES stores(id)',
     'barcode': 'VARCHAR',
@@ -105,6 +105,8 @@ attributes = {
     'created_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP',
     'updated_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP'
 }
+# drop_table('products')
+# create_table(table_name, attributes)
 
 # attributes = [
 #         "store_users.id AS user_id", 
