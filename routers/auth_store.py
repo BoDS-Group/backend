@@ -64,6 +64,8 @@ def is_admin_user(current_user: TokenData = Depends(get_current_user)):
 
 def check_role(email: str, role: str = 'STORE_ADMIN'):
     user = read_record('store_users', conditions={'email': email})
+    if user is None:
+        return False
     role_data = read_record('roles', conditions={'id': user.get('id')})
     if role_data is None:
         return False

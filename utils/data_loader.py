@@ -134,9 +134,9 @@ def get_store_id_by_name(store_name):
 
 async def insert_products_from_csv(file_path):
     data = pd.read_csv(file_path)
-    store_id = get_store_id_by_name('Red')
-    upper_limit = 200
-    lower_limit = 21
+    store_id = get_store_id_by_name('Yellow')
+    upper_limit = 1000
+    lower_limit = 801
     for index, row in data.iterrows():
         if index < lower_limit:
             continue
