@@ -1,12 +1,12 @@
 from fastapi import APIRouter, HTTPException, Depends
 from utils.db_utils import *
+from base_models.models import *
+from routers.auth_store import is_admin_user
 
-router = APIRouter(prefix="/api/stores")
+router = APIRouter(prefix="/api/store")
 
-@router.get("/{store_id}/profile")
-async def get_store_profile(store_id: str):
-    profile = read_record('store_profiles', conditions={'id': store_id})
-    if profile is None:
-        raise HTTPException(status_code=404, detail="profile not found")
-    print(profile)
-    return profile
+@router.get("/")
+async def get_store_data(current_user: TokenData = Depends(is_admin_user)):
+    store_id = current_user.store_id
+    store_profile = read_record('stores', conditions={'id': store_id})
+    return store_profile
