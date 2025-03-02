@@ -135,7 +135,14 @@ def get_store_id_by_name(store_name):
 async def insert_products_from_csv(file_path):
     data = pd.read_csv(file_path)
     store_id = get_store_id_by_name('Red')
+    upper_limit = 200
+    lower_limit = 21
     for index, row in data.iterrows():
+        if index < lower_limit:
+            continue
+        if index >= upper_limit:
+            break
+        print(f"Processing row {index}...")
         try:
             price_str = row['final_price'].strip('"')  
             product = [row['title'], row['description'], float(price_str), store_id]
@@ -148,19 +155,16 @@ async def insert_products_from_csv(file_path):
                     if category_id is not None:
                         # print(category_id.get('id'))
                         cat_id_list.append(category_id.get('id'))
-                
-            print(index, cat_id_list)
+                    
             product.append(cat_id_list)
             
             insert_record('products', ['title', 'description', 'price', 'store_id', 'category'], product)
             product_id = read_record('products', conditions={'title': row['title']})
-            print(product_id)
+            print(index, product_id.get('id'))
             image_url = row['image_url']
             if pd.notna(image_url):
                 await download_and_upload_image(image_url, product_id.get('id'))
-            
-            if index == 10:
-                break
+            print(f"Successfully inserted product: {row['title']}\n")
         except Exception as e:
             print(f"Failed to insert product: {e}")
             continue
