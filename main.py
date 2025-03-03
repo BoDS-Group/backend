@@ -12,9 +12,9 @@ app = FastAPI()
 app.mount("/images", StaticFiles(directory=IMAGE_BASE_DIR), name="images")
 
 origins = [
-    "https://admin.secondchance.fentorweb.hu",
-    "https://store.secondchance.fentorweb.hu",
-    "https://secondchance.fentorweb.hu",
+#    "https://admin.secondchance.fentorweb.hu",
+#    "https://store.secondchance.fentorweb.hu",
+#    "https://secondchance.fentorweb.hu",
     "*",
 ]
 
