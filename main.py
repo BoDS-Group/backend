@@ -9,7 +9,7 @@ from routers import auth_admin, admin, auth_store, orders, store_categories, sto
 IMAGE_BASE_DIR = os.getenv("IMAGE_BASE_DIR")
 
 app = FastAPI()
-app.mount("/images", StaticFiles(directory=IMAGE_BASE_DIR), name="images")
+app.mount("/api/images", StaticFiles(directory=IMAGE_BASE_DIR), name="images")
 
 origins = [
 #    "https://admin.secondchance.fentorweb.hu",
