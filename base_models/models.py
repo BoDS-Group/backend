@@ -36,6 +36,9 @@ class CartItem(BaseModel):
     title: str
     price: float
     quantity: int
+
+class CartItems(BaseModel):
+    cart_items: List[CartItem]
     
 class ProductCreate(BaseModel):
     title: str

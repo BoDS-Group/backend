@@ -10,18 +10,19 @@ stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
 PUBLIC_FRONTEND_URL = os.environ.get("PUBLIC_FRONTEND_URL") 
 
 @router.post("/create-checkout-session")
-async def create_checkout_session(cart_items: list[dict]):
-    print(cart_items)
+async def create_checkout_session(cart_items: CartItems):
+    # print(cart_items)
     try:
         line_items = []
-        for item in cart_items:
+        for item in cart_items.cart_items:
+            print(item)
             line_items.append({
                 "price_data": {
-                    "currency": "usd",
-                    "product_data": {"name": item["title"]},
-                    "unit_amount": int(item["price"] * 100),
+                    "currency": "euro",
+                    "product_data": {"name": item.title},
+                    "unit_amount": int(item.price * 100),
                 },
-                "quantity": item["quantity"],
+                "quantity": item.quantity,
             })
 
         session = stripe.checkout.Session.create(
@@ -34,6 +35,7 @@ async def create_checkout_session(cart_items: list[dict]):
 
         return {"sessionId": session.id}
     except Exception as e:
+        print("Error creating checkout session:", e)
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/checkout")
