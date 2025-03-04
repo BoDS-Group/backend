@@ -105,6 +105,42 @@ attributes = {
     'created_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP',
     'updated_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP'
 }
+
+table_name = 'customers'
+attributes = {
+    'id': 'UUID PRIMARY KEY',
+    'name': 'VARCHAR(255) NOT NULL',
+    'email': 'VARCHAR(50) NOT NULL',
+    'phone_number': 'VARCHAR(20) NOT NULL',
+    'created_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP',
+    'sustainability_achievement': 'TEXT'
+}
+
+table_name = 'customer_addresses'
+attributes = {
+    'id': 'UUID PRIMARY KEY',
+    'customer_id': 'UUID REFERENCES customer(id)',
+    'street_address': 'VARCHAR(255) NOT NULL',
+    'country': 'VARCHAR(255) NOT NULL',
+    'city': 'VARCHAR(255)',
+    'postal_code': 'VARCHAR(20)',
+    'created_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP',
+    'deleted_at': 'TIMESTAMPTZ'
+}
+
+table_name = 'customer_passwords'
+attributes = {
+    'id': 'UUID PRIMARY KEY REFERENCES customer(id)',
+    'password': 'VARCHAR(255) NOT NULL'
+}
+
+# delete_all_records('customer_passwords')
+# delete_all_records('customer_addresses')
+# delete_all_records('customers')
+
+# create_table(table_name, attributes)
+# print("Table Name:", table_name)
+
 # drop_table('products')
 # create_table(table_name, attributes)
 
@@ -133,9 +169,6 @@ attributes = {
 # delete_all_records("roles")
 # delete_all_records("store_users")
 # delete_all_records("stores")
-
-# create_table(table_name, attributes)
-# print("Table Name:", table_name)
 
 # alter_table(table_name='products', action='ADD', column_name='store_id', column_type='UUID REFERENCES stores(id)')
 # alter_table(table_name='products', action='ADD', column_name='barcode', column_type='VARCHAR')

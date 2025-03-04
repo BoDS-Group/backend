@@ -22,7 +22,7 @@ async def get_image(image_id: str): #current_user: TokenData = Depends(is_admin_
         raise HTTPException(status_code=404, detail="Image not found")
 
     # Constructing the URL for the image
-    image_url = f"{BACKEND_URL}/images/{image_metadata['file_path']}/{image_metadata['file_name']}"
+    image_url = f"{BACKEND_URL}/api/images/{image_metadata['file_path']}/{image_metadata['file_name']}"
     
     return {"image_url": image_url}
 

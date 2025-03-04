@@ -29,6 +29,14 @@ class UserLogin(BaseModel):
     email: str
     password: str
 
+class CusotmerCheck(BaseModel):
+    email: str
+
+class CartItem(BaseModel):
+    title: str
+    price: float
+    quantity: int
+    
 class ProductCreate(BaseModel):
     title: str
     description: Optional[str] = None
@@ -46,14 +54,16 @@ class ProductUpdate(BaseModel):
     properties: Optional[dict] = None
 
 class OrderCreate(BaseModel):
-    line_items: dict
+    cart_items: dict
     name: str
     email: str
+    phone_number: str
     city: str
     postal_code: str
     street_address: str
     country: str
-    paid: bool
+    password: Optional[str] = None
+    # paid: bool
 
 class OrderUpdate(BaseModel):
     line_items: Optional[dict] = None
