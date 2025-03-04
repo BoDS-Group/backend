@@ -36,11 +36,13 @@ def create_customer_account(user: dict):
         print("Customer account created")
         password = encode_password(user.get('password'))
         insert_record('customer_passwords', attributes=['id', 'password'], values=[customer_id, password])
-        street_address = user.get('street_address')
-        country = user.get('country')
-        city = user.get('city')
-        postal_code = user.get('postal_code')
-        insert_record('customer_addresses', attributes=['id', 'street_address', 'country', 'city', 'postal_code'], values=[customer_id, street_address, country, city, postal_code])
+        if 'city' in user:
+            address_id = str(uuid.uuid4())
+            street_address = user.get('street_address')
+            country = user.get('country')
+            city = user.get('city')
+            postal_code = user.get('postal_code')
+            insert_record('customer_addresses', attributes=['id', 'customer_id', 'street_address', 'country', 'city', 'postal_code'], values=[address_id, customer_id, street_address, country, city, postal_code])
         return True
     except Exception as e:
         print("Error creating customer account:", e)
@@ -58,11 +60,12 @@ def update_customer_account(user: dict):
         email = user.get('email')
         phone_number = user.get('phone_number')
         update_record('customers', attributes=['name', 'email', 'phone_number'], values=[name, email, phone_number], conditions={'id': customer_id})
-        street_address = user.get('street_address')
-        country = user.get('country')
-        city = user.get('city')
-        postal_code = user.get('postal_code')
-        update_record('customer_addresses', attributes=['street_address', 'country', 'city', 'postal_code'], values=[street_address, country, city, postal_code], conditions={'id': customer_id})
+        if 'city' in user:
+            street_address = user.get('street_address')
+            country = user.get('country')
+            city = user.get('city')
+            postal_code = user.get('postal_code')
+            update_record('customer_addresses', attributes=['street_address', 'country', 'city', 'postal_code'], values=[street_address, country, city, postal_code], conditions={'customer_id': customer_id})
         return True
     except Exception as e:
         print("Error updating customer account:", e)

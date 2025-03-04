@@ -31,14 +31,6 @@ class UserLogin(BaseModel):
 
 class CusotmerCheck(BaseModel):
     email: str
-
-class CartItem(BaseModel):
-    title: str
-    price: float
-    quantity: int
-
-class CartItems(BaseModel):
-    cart_items: List[CartItem]
     
 class ProductCreate(BaseModel):
     title: str
@@ -56,7 +48,15 @@ class ProductUpdate(BaseModel):
     category: Optional[int] = None
     properties: Optional[dict] = None
 
-class OrderCreate(BaseModel):
+class CartItem(BaseModel):
+    title: str
+    price: float
+    quantity: int
+
+class CartItems(BaseModel):
+    cart_items: List[CartItem]
+    
+class CheckoutOnline(BaseModel):
     cart_items: dict
     name: str
     email: str
@@ -66,7 +66,41 @@ class OrderCreate(BaseModel):
     street_address: str
     country: str
     password: Optional[str] = None
-    # paid: bool
+
+class CheckoutOffline(BaseModel):
+    cart_items: dict
+    name: str
+    email: str
+    phone_number: str
+    # city: str
+    # postal_code: str
+    # street_address: str
+    # country: str
+    password: Optional[str] = None
+
+class SubmitOrderOnline(BaseModel):
+    # line_items: List[CartItem]
+    cart_items: dict
+    name: str
+    email: str
+    phone_number: str
+    city: str
+    postal_code: str
+    street_address: str
+    country: str
+    # password: Optional[str] = None
+    
+class SubmitOrderOffline(BaseModel):
+    # line_items: List[CartItem]
+    cart_items: dict
+    name: str
+    email: str
+    phone_number: str
+    # city: str
+    # postal_code: str
+    # street_address: str
+    # country: str
+    # password: Optional[str] = None
 
 class OrderUpdate(BaseModel):
     line_items: Optional[dict] = None

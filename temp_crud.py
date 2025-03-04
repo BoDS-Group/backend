@@ -102,6 +102,7 @@ attributes = {
     'barcode': 'VARCHAR',
     'carbon_savings': 'VARCHAR(127)',
     'status': 'BOOLEAN',
+    'qty': 'INTEGER NOT NULL DEFAULT 1',
     'created_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP',
     'updated_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP'
 }
@@ -134,12 +135,48 @@ attributes = {
     'password': 'VARCHAR(255) NOT NULL'
 }
 
+table_name = 'orders'
+attributes = {
+    'id': 'UUID PRIMARY KEY',
+    'customer_id': 'UUID NOT NULL REFERENCES customers(id)',
+    # 'line_items': 'JSONB NOT NULL',
+    'store_id': 'UUID NOT NULL REFERENCES stores(id)',
+    'delivery': 'BOOLEAN NOT NULL',
+    'delivery_address_id': 'UUID REFERENCES customer_addresses(id)',
+    'order_otp': 'VARCHAR',
+    'status': 'VARCHAR NOT NULL',
+    'paid': 'BOOLEAN NOT NULL',
+    'total': 'INTEGER NOT NULL',
+    'created_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP',
+    'updated_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP'
+}
+
+table_name = 'orderItems'
+attributes = {
+    'id': 'UUID PRIMARY KEY',
+    'order_id': 'UUID NOT NULL REFERENCES orders(id)',
+    'product_id': 'INTEGER NOT NULL REFERENCES products(id)',
+    'qty': 'INTEGER NOT NULL',
+    'created_at': 'TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP',
+    'updated_at': 'TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP'
+}
+
+# alter_table(table_name='orders', action='DROP', column_name='line_items')
+
+
+# create_table(table_name, attributes)
+# print("Table Name:", table_name)
+
+# drop_table('orders')
+
+# alter_table(table_name='products', action='ADD', column_name='qty', column_type='INTEGER NOT NULL DEFAULT 1')
+
+# print("Added column 'qty' to the 'products' table")
+
 # delete_all_records('customer_passwords')
 # delete_all_records('customer_addresses')
 # delete_all_records('customers')
 
-# create_table(table_name, attributes)
-# print("Table Name:", table_name)
 
 # drop_table('products')
 # create_table(table_name, attributes)
