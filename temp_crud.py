@@ -151,7 +151,7 @@ attributes = {
     'updated_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP'
 }
 
-table_name = 'orderItems'
+table_name = 'order_items'
 attributes = {
     'id': 'UUID PRIMARY KEY',
     'order_id': 'UUID NOT NULL REFERENCES orders(id)',
@@ -173,9 +173,11 @@ attributes = {
 
 # print("Added column 'qty' to the 'products' table")
 
-# delete_all_records('customer_passwords')
-# delete_all_records('customer_addresses')
-# delete_all_records('customers')
+delete_all_records('customer_passwords')
+delete_all_records('order_items')
+delete_all_records('orders')
+delete_all_records('customer_addresses')
+delete_all_records('customers')
 
 
 # drop_table('products')

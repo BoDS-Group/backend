@@ -64,7 +64,7 @@ def create_new_order(order: dict, delivery: bool = False):
                 order_id = order_id
                 product_id = item.get('product_id')
                 qty = item.get('quantity')
-                insert_record('orderItems', attributes=['id', 'order_id', 'product_id', 'qty'], values=[order_items_id, order_id, product_id, qty])
+                insert_record('order_items', attributes=['id', 'order_id', 'product_id', 'qty'], values=[order_items_id, order_id, product_id, qty])
                 print(f"Order item created for product {product_id} with quantity {qty}")
         return True
     except Exception as e:
@@ -130,7 +130,7 @@ async def create_order(order: CheckoutOnline, request: Request):
         return {"access_token": access_token, "token_type": "bearer"}
     else:
         token = request.headers.get("Authorization")
-        if not len(token) > 50:
+        if token == None or not len(token) > 50:
             if check_if_customer_exists(order.email):
                 raise HTTPException(status_code=400, detail="User already exists")
             else:
@@ -182,7 +182,7 @@ async def create_order(order: CheckoutOffline, request: Request):
         return {"access_token": access_token, "token_type": "bearer"}
     else:
         token = request.headers.get("Authorization")
-        if not len(token) > 50:
+        if token == None or not len(token) > 50:
             if check_if_customer_exists(order.email):
                 raise HTTPException(status_code=400, detail="User already exists")
             else:
@@ -219,7 +219,7 @@ async def create_order(order: SubmitOrderOnline, request: Request):
         "street_address": order.street_address,
         "country": order.country,
     }
-    account_created = create_new_order(order_data)
+    account_created = create_new_order(order_data, delivery=True)
     if not account_created:
         raise HTTPException(status_code=400, detail="Error creating user account")
 
