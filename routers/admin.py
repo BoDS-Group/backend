@@ -147,3 +147,30 @@ async def get_store_users_with_stores(current_user: TokenData = Depends(is_admin
     store_admins_with_stores = read_joined_records(tables, join_conditions, attributes, conditions)
 
     return store_admins_with_stores
+
+@router.get("/store/{store_id}")
+async def get_store(store_id: str, current_user: TokenData = Depends(is_admin_user)):
+    attributes = [
+        "store_users.id AS user_id", 
+        "store_users.email AS store_admin_email", 
+        "store_users.name AS store_admin_name", 
+        "stores.id AS store_id", 
+        "stores.name AS store_name", 
+        "stores.description", 
+        "stores.city", 
+        "stores.location"
+    ]
+    tables = ["store_users", "stores", "roles"]
+    join_conditions = ["store_users.store_id = stores.id", "store_users.id = roles.id"]
+    conditions = {"roles.role": "STORE_ADMIN", "stores.id": store_id}
+
+    store_admins_with_stores = read_joined_records(tables, join_conditions, attributes, conditions)
+    # print(len(store_admins_with_stores))
+    if len(store_admins_with_stores) == 1:
+        return store_admins_with_stores[0]
+    return store_admins_with_stores
+
+@router.delete("/store/{store_id}")
+async def delete_store(store_id: str, current_user: TokenData = Depends(is_admin_user)):
+    delete_record('stores', conditions={'id': store_id})
+    return {"message": "Store deleted successfully"}

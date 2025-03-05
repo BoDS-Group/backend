@@ -45,7 +45,7 @@ class ProductUpdate(BaseModel):
     description: Optional[str] = None
     price: Optional[float] = None
     images: Optional[list[str]] = None
-    category: Optional[int] = None
+    category: Optional[List[int]] = None
     properties: Optional[dict] = None
 
 class CartItem(BaseModel):

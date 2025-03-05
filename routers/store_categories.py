@@ -29,7 +29,8 @@ async def update_category(category_id: str, category: CategoryCreate, current_us
 @router.post("/")
 async def create_category(category: CategoryCreate, current_user: TokenData = Depends(is_admin_user)):
     properties_json = json.dumps(category.properties) if category.properties else None
-    properties_json = json.dumps({k: v for k, v in json.loads(properties_json).items() if v})
+    if properties_json:
+        properties_json = json.dumps({k: v for k, v in json.loads(properties_json).items() if v})
     
     insert_record(
         'categories',

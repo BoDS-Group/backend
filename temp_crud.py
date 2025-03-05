@@ -173,11 +173,11 @@ attributes = {
 
 # print("Added column 'qty' to the 'products' table")
 
-delete_all_records('customer_passwords')
-delete_all_records('order_items')
-delete_all_records('orders')
-delete_all_records('customer_addresses')
-delete_all_records('customers')
+# delete_all_records('customer_passwords')
+# delete_all_records('order_items')
+# delete_all_records('orders')
+# delete_all_records('customer_addresses')
+# delete_all_records('customers')
 
 
 # drop_table('products')
