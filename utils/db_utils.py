@@ -485,3 +485,30 @@ def delete_all_records(table_name):
         with conn.cursor() as cursor:
             cursor.execute(query)
             conn.commit()
+            
+def execute_query(query: str):
+    """
+    Execute a custom SQL query.
+    
+    Parameters:
+      - query (str): The SQL query to execute.
+    """
+    with get_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(query)
+            conn.commit()
+
+def excecute_query_with_return(query: str):
+    """
+    Execute a custom SQL query and return the result.
+    
+    Parameters:
+      - query (str): The SQL query to execute.
+    
+    Returns:
+      - The result of the query.
+    """
+    with get_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(query)
+            return dictfetchall(cursor)

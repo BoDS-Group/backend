@@ -55,7 +55,16 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     return token_data
 
 def is_admin_user(current_user: TokenData = Depends(get_current_user)):
-    if not current_user.is_admin:
+    # if not current_user.is_admin:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_403_FORBIDDEN,
+    #         detail="Not enough permissions",
+    #     )
+    print(current_user)
+    return current_user
+
+def is_employee_user(current_user: TokenData = Depends(get_current_user)):
+    if current_user.is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not enough permissions",
@@ -129,7 +138,7 @@ async def register(user: UserRegister):
 @router.post("/login", response_model=Token)
 async def login(user: UserLogin):
     print(user)
-    if not check_role(user.email):
+    if not check_role(user.email) and not check_role(user.email, 'EMPLOYEE'):
         raise HTTPException(status_code=401, detail="Unauthorized")
     user_email = user.email
     user_password = user.password
@@ -143,8 +152,9 @@ async def login(user: UserLogin):
     if password_data.get('password') != password_hash:
         raise HTTPException(status_code=401, detail="Unauthorized")
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    is_admin = check_role(user_email)
     access_token = create_access_token(
-        data={"sub": user.email, "is_admin": True}, expires_delta=access_token_expires
+        data={"sub": user.email, "is_admin": is_admin}, expires_delta=access_token_expires
     )
     return {
         "access_token": access_token,
@@ -155,9 +165,10 @@ async def login(user: UserLogin):
 @router.get("/users/me", response_model=User)
 async def read_users_me(current_user: TokenData = Depends(get_current_user)):
     user = get_user(current_user.email)
+    print(current_user.is_admin)
     return {
         "email": current_user.email,
         "name": user.get('name'),  
-        "picture": user.get('picture') or None,  
-        "address": user.get('address')
+        "picture": user.get('picture') or None,
+        "is_admin": current_user.is_admin
     }

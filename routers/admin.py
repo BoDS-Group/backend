@@ -124,7 +124,7 @@ async def create_product(store: StoreCreate , current_user: TokenData = Depends(
         values=[store_users_id, encode_password("test1234")]
     )
     return {
-        "message": "Product created successfully",
+        "message": "Store created successfully",
         "store_id": store_id
         }
 
@@ -172,5 +172,8 @@ async def get_store(store_id: str, current_user: TokenData = Depends(is_admin_us
 
 @router.delete("/store/{store_id}")
 async def delete_store(store_id: str, current_user: TokenData = Depends(is_admin_user)):
+    admin_data = read_record('store_admins_with_stores_view', conditions={'store_id': store_id})
+    delete_record('passwords', conditions={'id': admin_data.get('user_id')})
     delete_record('stores', conditions={'id': store_id})
+    delete_record('store_users', conditions={'id': admin_data.get('user_id')})
     return {"message": "Store deleted successfully"}

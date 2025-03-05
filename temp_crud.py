@@ -1,4 +1,5 @@
 from utils.db_utils import *
+from base_models.models import *
 import uuid
 import json
 import hashlib
@@ -35,20 +36,20 @@ attributes = {
     'properties': 'JSONB'
 }
 
-table_name = 'orders'
-attributes = {
-    'id': 'SERIAL PRIMARY KEY',
-    'line_items': 'JSONB',
-    'name': 'VARCHAR(255)',
-    'email': 'VARCHAR(255)',
-    'city': 'VARCHAR(255)',
-    'postal_code': 'VARCHAR(20)',
-    'street_address': 'VARCHAR(255)',
-    'country': 'VARCHAR(255)',
-    'paid': 'BOOLEAN',
-    'created_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP',
-    'updated_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP'
-}
+# table_name = 'orders'
+# attributes = {
+#     'id': 'SERIAL PRIMARY KEY',
+#     'line_items': 'JSONB',
+#     'name': 'VARCHAR(255)',
+#     'email': 'VARCHAR(255)',
+#     'city': 'VARCHAR(255)',
+#     'postal_code': 'VARCHAR(20)',
+#     'street_address': 'VARCHAR(255)',
+#     'country': 'VARCHAR(255)',
+#     'paid': 'BOOLEAN',
+#     'created_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP',
+#     'updated_at': 'TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP'
+# }
 
 table_name = 'passwords'
 attributes = {
@@ -139,7 +140,6 @@ table_name = 'orders'
 attributes = {
     'id': 'UUID PRIMARY KEY',
     'customer_id': 'UUID NOT NULL REFERENCES customers(id)',
-    # 'line_items': 'JSONB NOT NULL',
     'store_id': 'UUID NOT NULL REFERENCES stores(id)',
     'delivery': 'BOOLEAN NOT NULL',
     'delivery_address_id': 'UUID REFERENCES customer_addresses(id)',
@@ -163,6 +163,10 @@ attributes = {
 
 # alter_table(table_name='orders', action='DROP', column_name='line_items')
 
+# user = read_record('store_users', conditions={'email': 'red.emp1@gmail.com'})
+# delete_record('roles', conditions={'id': user.get('id')})
+# delete_record('passwords', conditions={'id': user.get('id')})
+# delete_record('store_users', conditions={'email': 'red.emp1@gmail.com'})
 
 # create_table(table_name, attributes)
 # print("Table Name:", table_name)
@@ -306,3 +310,36 @@ attributes = {
 #     return cities
 
 # print(get_all_cities())
+
+# def get_orders_response():
+#     query = "SELECT * FROM order_response_view"
+#     result = execute_query(query)
+#     print(result)
+#     orders = []
+#     for row in result:
+#         order = Order(
+#             _id=row[0],
+#             createdAt=row[1],
+#             paid=row[2],
+#             name=row[3],
+#             email=row[4],
+#             city=row[5],
+#             postalCode=row[6],
+#             country=row[7],
+#             streetAddress=row[8],
+#             customer_id=row[9],
+#             store_id=row[10],
+#             delivery=row[11],
+#             delivery_address_id=row[12],
+#             order_otp=row[13],
+#             status=row[14],
+#             total=row[15],
+#             line_items=[LineItem(**item) for item in row[16]]
+#         )
+#         orders.append(order)
+#     return OrdersResponse(orders=orders)
+
+
+# Example usage
+# orders_response = read_records('order_response_view')
+# print(orders_response)
