@@ -160,8 +160,8 @@ attributes = {
     'created_at': 'TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP',
     'updated_at': 'TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP'
 }
-product_qty = int(read_column('products', 'qty', conditions={'id': 1})[0])
-update_record('products', attributes=['qty'], values=[f"{product_qty-1}"], conditions={'id': 1})
+# product_qty = int(read_column('products', 'qty', conditions={'id': 1})[0])
+# update_record('products', attributes=['qty'], values=[f"{product_qty-1}"], conditions={'id': 1})
 
 # alter_table(table_name='orders', action='DROP', column_name='line_items')
 
