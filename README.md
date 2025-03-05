@@ -1,6 +1,6 @@
 # Second Chance Backend
 
-This repository contains the backend code for the Second Chance project. It is built using FastAPI and PostgreSQL for managing user roles, store users, categories, products, and orders.
+This repository contains the backend code for the Second Chance project. It is built using FastAPI and PostgreSQL for RBAC, store management, categories, products, and orders.
 
 ## Requirements
 
@@ -36,250 +36,116 @@ This repository contains the backend code for the Second Chance project. It is b
     DB_PORT=your_db_port
 
     
-    IMAGE_BASE_DIR=./images
+    IMAGE_BASE_DIR=./api/images
 
     SECRET_KEY = "your_secret_key"
     ALGORITHM = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
     BACKEND_URL = http://localhost:8000
+    PUBLIC_FRONTEND_URL = http://localhost:3000
+
+    STRIPE_SECRET_KEY = "sk_test_51Qykb9Pp13vxAOiL9OpyIh5zNVykxTZVhtw5QwPBqab4ubIRAPRK3ZG5BOOrbDJwem0Ju5deUc6Gq7xzkhguIrbz00AGbZSYoZ"
     ```
 
 5. Start the PostgreSQL Database Server (if not already running) using pgAdmin or command line tools. 
 
-6. Restore the database from the backup file `sc-test-backup.sql` under `/db_backup` directory using pgAdmin or command line tools.
+6. Restore the database from the backup file `second-chance-plain.sql` under `/db_backup` directory using pgAdmin or command line tools.
 
 5. Run the FastAPI application:
     ```sh
     uvicorn main:app --reload
     ```
 
-## API Endpoints
+# API Endpoints Documentation
 
-### Authentication
+### auth_admin.py
 
-#### Google Authentication
-- **Endpoint:** `/api/auth/store/google`
-- **Method:** `POST`
-- **Request Body:**
-    ```json
-    {
-        "email": "user@example.com",
-        "name": "User Name",
-        "picture": "http://example.com/picture.jpg",
-        "given_name": "User",
-        "family_name": "Name"
-    }
-    ```
-- **Response:**
-    ```json
-    {
-        "access_token": "your_access_token",
-        "token_type": "bearer"
-    }
-    ```
+| Endpoint          | Method | Request Body       | Return Body                      |
+|-------------------|--------|--------------------|----------------------------------|
+| /api/auth/admin/register | POST   | UserRegister       | Token                            |
+| /api/auth/admin/login    | POST   | UserLogin          | Token                            |
+| /api/auth/admin/users/me | GET    | None               | SysAdminUser                     |
 
-#### Register
-- **Endpoint:** `/api/auth/store/register`
-- **Method:** `POST`
-- **Request Body:**
-    ```json
-    {
-        "email": "user@example.com",
-        "password": "your_password",
-        "name": "User Name"
-    }
-    ```
-- **Response:**
-    ```json
-    {
-        "access_token": "your_access_token",
-        "token_type": "bearer"
-    }
-    ```
+### admin.py
 
-#### Login
-- **Endpoint:** `/api/auth/store/login`
-- **Method:** `POST`
-- **Request Body:**
-    ```json
-    {
-        "email": "user@example.com",
-        "password": "your_password"
-    }
-    ```
-- **Response:**
-    ```json
-    {
-        "access_token": "your_access_token",
-        "token_type": "bearer"
-    }
-    ```
+| Endpoint                  | Method | Request Body       | Return Body                      |
+|---------------------------|--------|--------------------|----------------------------------|
+| /api/admin/image/upload   | POST   | UploadFile, Form   | {"image_id": [image_id]}         |
+| /api/admin/image/{image_id} | GET  | None               | {"image_url": image_url}         |
+| /api/admin/image/{image_id} | DELETE | None             | {"message": "Image deleted successfully"} |
+| /api/admin/cities         | GET    | None               | List of cities                   |
+| /api/admin/new-store      | POST   | StoreCreate        | {"message": "Store created successfully", "store_id": store_id} |
+| /api/admin/stores         | GET    | None               | List of stores with admin details|
+| /api/admin/store/{store_id} | GET  | None               | Store details with admin details |
+| /api/admin/store/{store_id} | DELETE | None             | {"message": "Store deleted successfully"} |
 
-### Users
+### auth_store.py
 
-#### Get Current User
-- **Endpoint:** `/api/users/me`
-- **Method:** `GET`
-- **Response:**
-    ```json
-    {
-        "email": "user@example.com",
-        "name": "User Name",
-        "picture": "http://example.com/picture.jpg",
-    }
-    ```
+| Endpoint                  | Method | Request Body       | Return Body                      |
+|---------------------------|--------|--------------------|----------------------------------|
+| /api/auth/store/google    | POST   | User               | Token                            |
+| /api/auth/store/register  | POST   | UserRegister       | Token                            |
+| /api/auth/store/login     | POST   | UserLogin          | Token                            |
+| /api/auth/store/users/me  | GET    | None               | User                             |
 
-### Products
+### orders.py
 
-#### Get All Products
-- **Endpoint:** `/api/products`
-- **Method:** `GET`
-- **Response:** List of products
+| Endpoint                  | Method | Request Body       | Return Body                      |
+|---------------------------|--------|--------------------|----------------------------------|
+| /api/orders/create-checkout-session | POST | CartItems | {"sessionId": session.id}        |
+| /api/orders/checkout-online | POST | CheckoutOnline, Request | {"access_token": access_token, "token_type": "bearer"} |
+| /api/orders/checkout-offline | POST | CheckoutOffline, Request | {"message": "Token received"}    |
+| /api/orders/submit-order-online | POST | SubmitOrderOnline, Request | {"message": "Order submitted"}   |
+| /api/orders/submit-order-offline | POST | SubmitOrderOffline, Request | {"message": "Order submitted"}   |
 
-#### Get a Single Product
-- **Endpoint:** `/api/products/{product_id}`
-- **Method:** `GET`
-- **Response:** Product details
+### store_categories.py
 
-#### Create a Product
-- **Endpoint:** `/api/products`
-- **Method:** `POST`
-- **Request Body:**
-    ```json
-    {
-        "title": "Sample Product",
-        "description": "This is a sample product description.",
-        "price": 19.99,
-        "images": ["image1.jpg", "image2.jpg"],
-        "category": 1,
-        "properties": {"color": "red", "size": "M"}
-    }
-    ```
-- **Response:**
-    ```json
-    {
-        "message": "Product created successfully"
-    }
-    ```
+| Endpoint                  | Method | Request Body       | Return Body                      |
+|---------------------------|--------|--------------------|----------------------------------|
+| /api/store/categories     | GET    | None               | List of categories               |
+| /api/store/categories/{category_id} | PUT | CategoryCreate | {"message": "Category updated successfully"} |
+| /api/store/categories     | POST   | CategoryCreate     | {"message": "Category created successfully"} |
+| /api/store/categories/{category_id} | DELETE | None       | {"message": "Category deleted successfully"} |
 
-#### Update a Product
-- **Endpoint:** `/api/products/{product_id}`
-- **Method:** `PUT`
-- **Request Body:** Partial or full product details to update
-- **Response:**
-    ```json
-    {
-        "message": "Product updated successfully"
-    }
-    ```
+### store_products.py
 
-#### Delete a Product
-- **Endpoint:** `/api/products/{product_id}`
-- **Method:** `DELETE`
-- **Response:**
-    ```json
-    {
-        "message": "Product deleted successfully"
-    }
-    ```
+| Endpoint                  | Method | Request Body       | Return Body                      |
+|---------------------------|--------|--------------------|----------------------------------|
+| /api/store/products       | GET    | None               | List of products                 |
+| /api/store/products/{product_id} | GET | None           | Product details                  |
+| /api/store/products       | POST   | ProductCreate      | {"message": "Product created successfully", "product_id": product_id} |
+| /api/store/products/{product_id} | PUT | ProductUpdate   | {"message": "Product updated successfully"} |
+| /api/store/products/{product_id} | DELETE | None         | {"message": "Product deleted successfully"} |
+| /api/store/products/recent/{page} | GET | None           | List of recent products          |
 
-### Categories
+### store_orders.py
 
-#### Get All Categories
-- **Endpoint:** `/api/categories`
-- **Method:** `GET`
-- **Response:** List of categories
+| Endpoint                  | Method | Request Body       | Return Body                      |
+|---------------------------|--------|--------------------|----------------------------------|
+| /api/store/orders         | GET    | None               | List of orders                   |
 
-#### Create a Category
-- **Endpoint:** `/api/categories`
-- **Method:** `POST`
-- **Request Body:**
-    ```json
-    {
-        "name": "Category Name",
-        "parent": null,
-        "properties": {"key": "value"}
-    }
-    ```
-- **Response:**
-    ```json
-    {
-        "message": "Category created successfully"
-    }
-    ```
+### store_admin.py
 
-#### Update a Category
-- **Endpoint:** `/api/categories/{category_id}`
-- **Method:** `PUT`
-- **Request Body:** Partial or full category details to update
-- **Response:**
-    ```json
-    {
-        "message": "Category updated successfully"
-    }
-    ```
+| Endpoint                  | Method | Request Body       | Return Body                      |
+|---------------------------|--------|--------------------|----------------------------------|
+| /api/store/admin/new-employee | POST | EmployeeCreate   | {"message": "Employee created successfully"} |
+| /api/store/admin/employees | GET  | None               | List of employees                |
+| /api/store/admin/employee/{employee_id} | DELETE | None | {"message": "Employee deleted successfully"} |
 
-#### Delete a Category
-- **Endpoint:** `/api/categories/{category_id}`
-- **Method:** `DELETE`
-- **Response:**
-    ```json
-    {
-        "message": "Category deleted successfully"
-    }
-    ```
+### store_employee.py
 
-...TO BE CONTINUED
+| Endpoint                  | Method | Request Body       | Return Body                      |
+|---------------------------|--------|--------------------|----------------------------------|
+| /api/store/employee/product/{barcode} | GET | None       | Product details                  |
+| /api/store/employee/submit-order | POST | OrderCart      | {"message": "Order submitted successfully!", "orderId": new_order_submitted} |
+| /api/store/employee/invoice/{order_id} | GET | None       | PDF invoice                      |
+| /api/store/employee/product/barcode/{product_id} | GET | None | Barcode image                    |
 
-## Database Schema
+### image.py
 
-### Tables
-
-- **store_users**
-    - `id`: UUID PRIMARY KEY
-    - `name`: VARCHAR(127) NOT NULL
-    - `picture`: VARCHAR(255)
-    - `address`: VARCHAR(255)
-
-- **passwords**
-    - `id`: UUID PRIMARY KEY
-    - `password`: VARCHAR(255) NOT NULL
-    - `FOREIGN KEY (id)`: REFERENCES store_users(id)
-
-- **roles**
-    - `id`: UUID PRIMARY KEY
-    - `role`: VARCHAR(50) NOT NULL
-    - `FOREIGN KEY (id)`: REFERENCES store_users(id)
-
-- **categories**
-    - `id`: SERIAL PRIMARY KEY
-    - `name`: VARCHAR(255) NOT NULL
-    - `parent`: INTEGER REFERENCES categories(id)
-    - `properties`: JSONB
-
-- **products**
-    - `id`: SERIAL PRIMARY KEY
-    - `title`: VARCHAR(255) NOT NULL
-    - `description`: TEXT
-    - `price`: NUMERIC(10, 2) NOT NULL
-    - `images`: TEXT[]
-    - `category`: INTEGER REFERENCES categories(id)
-    - `properties`: JSONB
-    - `created_at`: TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-    - `updated_at`: TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-
-- **orders**
-    - `id`: SERIAL PRIMARY KEY
-    - `line_items`: JSONB
-    - `name`: VARCHAR(255)
-    - `email`: VARCHAR(255)
-    - `city`: VARCHAR(255)
-    - `postal_code`: VARCHAR(20)
-    - `street_address`: VARCHAR(255)
-    - `country`: VARCHAR(255)
-    - `paid`: BOOLEAN
-    - `created_at`: TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-    - `updated_at`: TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-
-...TO BE CONTINUED
+| Endpoint                  | Method | Request Body       | Return Body                      |
+|---------------------------|--------|--------------------|----------------------------------|
+| /api/image/upload         | POST   | UploadFile, Form   | {"image_id": [image_id]}         |
+| /api/image/{image_id}     | GET    | None               | {"image_url": image_url}         |
+| /api/image/{image_id}     | DELETE | None               | {"message": "Image deleted successfully"} |
