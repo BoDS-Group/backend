@@ -196,6 +196,7 @@ def read_record(table_name, attributes=None, conditions=None):
         with conn.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(query, params)
             return dictfetchone(cursor)
+
 def read_joined_records(tables, join_conditions, attributes=None, conditions=None):
     """
     Retrieve rows from multiple tables with join operations.

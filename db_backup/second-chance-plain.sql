@@ -5,7 +5,7 @@
 -- Dumped from database version 17.2
 -- Dumped by pg_dump version 17.2
 
--- Started on 2025-03-05 19:58:42
+-- Started on 2025-03-05 22:02:17
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -55,7 +55,7 @@ CREATE SEQUENCE public.categories_id_seq
 ALTER SEQUENCE public.categories_id_seq OWNER TO postgres;
 
 --
--- TOC entry 4983 (class 0 OID 0)
+-- TOC entry 4984 (class 0 OID 0)
 -- Dependencies: 217
 -- Name: categories_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -95,7 +95,7 @@ CREATE SEQUENCE public.cities_id_seq
 ALTER SEQUENCE public.cities_id_seq OWNER TO postgres;
 
 --
--- TOC entry 4984 (class 0 OID 0)
+-- TOC entry 4985 (class 0 OID 0)
 -- Dependencies: 224
 -- Name: cities_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -340,7 +340,7 @@ CREATE SEQUENCE public.products_id_seq
 ALTER SEQUENCE public.products_id_seq OWNER TO postgres;
 
 --
--- TOC entry 4985 (class 0 OID 0)
+-- TOC entry 4986 (class 0 OID 0)
 -- Dependencies: 227
 -- Name: products_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -433,7 +433,7 @@ ALTER TABLE ONLY public.products ALTER COLUMN id SET DEFAULT nextval('public.pro
 
 
 --
--- TOC entry 4962 (class 0 OID 16482)
+-- TOC entry 4963 (class 0 OID 16482)
 -- Dependencies: 218
 -- Data for Name: categories; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -474,7 +474,7 @@ COPY public.categories (id, name, parent, properties) FROM stdin;
 
 
 --
--- TOC entry 4969 (class 0 OID 16573)
+-- TOC entry 4970 (class 0 OID 16573)
 -- Dependencies: 225
 -- Data for Name: cities; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -903,7 +903,7 @@ COPY public.cities (id, city, lat, lng) FROM stdin;
 
 
 --
--- TOC entry 4974 (class 0 OID 16914)
+-- TOC entry 4975 (class 0 OID 16914)
 -- Dependencies: 230
 -- Data for Name: customer_addresses; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -914,29 +914,31 @@ COPY public.customer_addresses (id, customer_id, street_address, country, city, 
 
 
 --
--- TOC entry 4975 (class 0 OID 16927)
+-- TOC entry 4976 (class 0 OID 16927)
 -- Dependencies: 231
 -- Data for Name: customer_passwords; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.customer_passwords (id, password) FROM stdin;
 a98dacde-1112-4e52-89ba-0eeefbd352d5	5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5
+b3cfe717-7b1a-4c0e-bafe-79938d934598	937e8d5fbb48bd4949536cd65b8d35c426b80d2f830c5c308e2cdec422ae2244
 \.
 
 
 --
--- TOC entry 4973 (class 0 OID 16906)
+-- TOC entry 4974 (class 0 OID 16906)
 -- Dependencies: 229
 -- Data for Name: customers; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.customers (id, name, email, phone_number, created_at, sustainability_achievement) FROM stdin;
 a98dacde-1112-4e52-89ba-0eeefbd352d5	Md Hamidur Rahman Khan	hamidurrk@gmail.com	0417405324	2025-03-05 03:13:36.419153+02	\N
+b3cfe717-7b1a-4c0e-bafe-79938d934598	Md Hamidur Rahman Khan	hamidurrk@mail.com	0417405324	2025-03-05 21:30:43.427289+02	\N
 \.
 
 
 --
--- TOC entry 4966 (class 0 OID 16556)
+-- TOC entry 4967 (class 0 OID 16556)
 -- Dependencies: 222
 -- Data for Name: images; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1921,11 +1923,12 @@ d39d5d90-a045-4a2a-ae01-5c1fe3d46ec5	2025\\3	d39d5d90-a045-4a2a-ae01-5c1fe3d46ec
 4f8e5c07-693c-455e-81f9-341e41c47039	2025\\3	4f8e5c07-693c-455e-81f9-341e41c47039.jpg	image/webp	2025-03-03 01:01:16.059684
 dcada22d-f45e-440f-8854-ddcb22cd06c5	2025\\3	dcada22d-f45e-440f-8854-ddcb22cd06c5.jpg	image/jpeg	2025-03-03 01:01:16.832296
 901ff91e-4494-4065-aa73-ff0aa9e2910b	2025\\3	901ff91e-4494-4065-aa73-ff0aa9e2910b.webp	image/webp	2025-03-05 04:53:30.630452
+38b8f30d-5237-4658-a2f9-903adb7dc5b4	2025\\3	38b8f30d-5237-4658-a2f9-903adb7dc5b4.webp	image/webp	2025-03-05 21:40:04.773778
 \.
 
 
 --
--- TOC entry 4977 (class 0 OID 17016)
+-- TOC entry 4978 (class 0 OID 17016)
 -- Dependencies: 233
 -- Data for Name: order_items; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1949,11 +1952,12 @@ b1854998-b64c-4cac-8704-013279806a57	5f415a05-2c8d-438d-872c-79b996ecfb51	12	4	2
 9f3143bb-982c-4cfa-ac62-31101438b68e	7024de77-36dc-4d9c-9bd6-403bda3840e8	7	2	2025-03-05 19:13:07.621193+02	2025-03-05 19:13:07.621193+02
 ae51edfe-f4ce-49fc-9ab1-3ce07226e46e	7024de77-36dc-4d9c-9bd6-403bda3840e8	14	3	2025-03-05 19:13:07.849656+02	2025-03-05 19:13:07.849656+02
 f728f844-51c5-44c9-bf42-8994c0483cbe	7024de77-36dc-4d9c-9bd6-403bda3840e8	18	2	2025-03-05 19:13:07.959162+02	2025-03-05 19:13:07.959162+02
+6358bf54-da41-4517-a10b-36213f44c8a4	145a63e1-8da8-4e2b-8e6a-a0b65a831d84	11	1	2025-03-05 21:31:17.437465+02	2025-03-05 21:31:17.437465+02
 \.
 
 
 --
--- TOC entry 4976 (class 0 OID 16992)
+-- TOC entry 4977 (class 0 OID 16992)
 -- Dependencies: 232
 -- Data for Name: orders; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1969,11 +1973,12 @@ b3539ad6-7e03-4a18-9770-0da95289fb2f	\N	4ecef245-d048-4727-a9b0-4cb9a12d0e42	f	\
 1f67187d-9dac-4403-baf1-5f000da87f77	\N	4ecef245-d048-4727-a9b0-4cb9a12d0e42	f	\N	\N	delivered	t	57.00	2025-03-05 19:09:06.743264+02	2025-03-05 19:09:06.743264+02
 6fbc3fe9-7e39-4ec7-89e2-6362154415df	\N	4ecef245-d048-4727-a9b0-4cb9a12d0e42	f	\N	\N	delivered	t	53.64	2025-03-05 19:12:04.875287+02	2025-03-05 19:12:04.875287+02
 7024de77-36dc-4d9c-9bd6-403bda3840e8	\N	4ecef245-d048-4727-a9b0-4cb9a12d0e42	f	\N	\N	delivered	t	501.16	2025-03-05 19:13:07.581244+02	2025-03-05 19:13:07.581244+02
+145a63e1-8da8-4e2b-8e6a-a0b65a831d84	a98dacde-1112-4e52-89ba-0eeefbd352d5	4ecef245-d048-4727-a9b0-4cb9a12d0e42	f	\N	382476	pending	t	84.99	2025-03-05 21:31:17.4059+02	2025-03-05 21:31:17.4059+02
 \.
 
 
 --
--- TOC entry 4963 (class 0 OID 16529)
+-- TOC entry 4964 (class 0 OID 16529)
 -- Dependencies: 219
 -- Data for Name: passwords; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -1993,7 +1998,7 @@ c2ec1a61-8f99-403c-88d3-f2da694b2ad8	937e8d5fbb48bd4949536cd65b8d35c426b80d2f830
 
 
 --
--- TOC entry 4972 (class 0 OID 16739)
+-- TOC entry 4973 (class 0 OID 16739)
 -- Dependencies: 228
 -- Data for Name: products; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -2041,6 +2046,7 @@ COPY public.products (id, title, description, price, images, category, propertie
 37	CleanEspresso 2 Gram Espresso Machine Cleaning Tablets Model BR-040 - For Breville Espresso Machines	About this item 2 GRAM TABLETS - Don't be fooled by 1gram tabs that cannot hold up to the cleaning cycle pressure. BETTER TASTING ESPRESSO by Removing Oily BuildUp Inside Your Machine. Get The Ultimate Cleaning Experience With Precision Cleaning DESIGNED For Use With All Models of Breville Espresso Machines AUTOMATICALLY Cleans Inner Machine Parts 100% NO QUESTIONS ASKED, MONEY BACK GUARANTEE. Go ahead and give it a try. CLICK "ADD TO CART" NOW!	16.99	{10b4999d-e072-4cae-98b6-137c2381d5cc}	{23}	\N	4ecef245-d048-4727-a9b0-4cb9a12d0e42	604853052907	15.65	\N	2025-03-02 16:45:44.993986+02	2025-03-02 16:45:44.993986+02	14
 38	Minnetonka Women's Back-Zipper Bootie	From the brand /* * Used when device = desktop * Configured in: configuration/brazil-config/global/brand-story.cfg */ /* Because the carousel is implemented as an ol list, any lists in the card text will have a secondary list style (letters). This will give an incorrect appearance to viewers, so we set all lists to the primary list style (numbers). */ .aplus-brand-story-card ol li { list-style: decimal; } /* Top level containers */ .aplus-module .apm-brand-story-hero { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; width: 1464px; height: 625px; background-color: #fff; } .aplus-module .apm-brand-story-card { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; width: 362px; height: 453px; background-color: #fff; } .apm-brand-story-hero, .apm-brand-story-card { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; position: relative; width: 100%; height: 100%; float: none; } .aplus-module.brand-story-card-1-four-asin .apm-brand-story-card { /* Only 12px to account for image cell border */ padding: 12px; } /* Full background image (Hero 1 & Card 2) */ .aplus-module .apm-brand-story-background-image { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; overflow: hidden; position: absolute; width: 100%; height: 100%; } /* Card 1 small images */ .aplus-module .apm-brand-story-image-row { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; height: 185px; padding: 0px; margin: auto; display: flex; } .aplus-module .apm-brand-story-image-row .apm-brand-story-image-cell { /* Use content-box to ensure image size matches editor schema */ -moz-box-sizing: content-box; -webkit-box-sizing: content-box; box-sizing: content-box; padding: 0px; margin: 0px; width: 166px; border: 1px solid #fff; } .aplus-module .apm-brand-story-image-row .apm-brand-story-image-cell .apm-brand-story-image-link { display: block; width: 100%; height: 100%; } .aplus-module .apm-brand-story-image-row .apm-brand-story-image-cell .apm-brand-story-image-link .apm-brand-story-image-img { display: block; width: 100%; height: 100%; object-fit: cover; } /* Card 3 logo image */ .aplus-module .apm-brand-story-logo-image { -moz-box-sizing: content-box; -webkit-box-sizing: content-box; box-sizing: content-box; height: 145px; margin: 0px 4px; padding: 20px; padding-bottom: 0px; } /* Text overlays */ .aplus-module .apm-brand-story-text-bottom { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; position: absolute; bottom: 13px; left: 13px; } .aplus-module .apm-brand-story-hero .apm-brand-story-text-bottom { background-color: rgba(0,0,0,0.6); color: #fff; padding: 13px 65px 13px 13px; /* accounts for overlap of first card */ width: 437px; } .aplus-module.brand-story-card-2-media-asset .apm-brand-story-text-bottom { background-color: rgba(255,255,255,0.6); color: #000; padding: 13px; width: 336px; } .aplus-module.brand-story-card-1-four-asin .apm-brand-story-text { margin-top: 8px; } .aplus-module.brand-story-card-1-four-asin .apm-brand-story-text.apm-brand-story-text-single { margin-top: 20px; } .aplus-module.brand-story-card-1-four-asin .apm-brand-story-text h3 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .aplus-module .apm-brand-story-slogan-text { -moz-box-sizing: content-box; -webkit-box-sizing: content-box; box-sizing: content-box; margin: 0px 4px; padding: 20px; } .aplus-module .apm-brand-story-faq { -moz-box-sizing: content-box; -webkit-box-sizing: content-box; box-sizing: content-box; padding-top: 10px; } .aplus-module .apm-brand-story-faq-block { margin: 0px 10px; padding: 10px; } .aplus-v2 .apm-brand-story-carousel-container { position: relative; } .aplus-v2 .apm-brand-story-carousel-hero-container, .aplus-v2 .apm-brand-story-carousel-hero-container > div { position: absolute; width: 100%; } /* Ensuring the carousel takes only the space it needs. The sizes need to be set again on the absolutely positioned elements so they can take up space. */ .aplus-v2 .apm-brand-story-carousel-container, .aplus-v2 .apm-brand-story-carousel-hero-container { height: 625px; width: calc(100% + 15px); max-width: 1464px; margin-left: auto; margin-right: auto; } /* This centers the carousel vertically on top of the hero image container and after the logo area (125px). Margin-top = (heroHeight - cardHeight - logoAreaHeight) / 2 + logoAreaHeight */ .aplus-v2 .apm-brand-story-carousel .a-carousel-row-inner{ margin-top: 149px; } /* Cards need to have a width set, otherwise they default to 50px or so. All cards must have the same width. The carousel will resize itself so all cards take the width of the largest card. The left margin is for leaving a space between each card. */ .aplus-v2 .apm-brand-story-carousel .a-carousel-card { width: 362px; margin-left: 30px !important; } /* styling the navigation buttons so they are taller, flush with the sides, and have a clean white background */ .aplus-v2 .apm-brand-story-carousel .a-carousel-col.a-carousel-left, .aplus-v2 .apm-brand-story-carousel .a-carousel-col.a-carousel-right { padding: 0px; } .aplus-v2 .apm-brand-story-carousel .a-carousel-col.a-carousel-left .a-button-image, .aplus-v2 .apm-brand-story-carousel .a-carousel-col.a-carousel-right .a-button-image { border: none; margin: 0px; } .aplus-v2 .apm-brand-story-carousel .a-carousel-col.a-carousel-left .a-button-image .a-button-inner, .aplus-v2 .apm-brand-story-carousel .a-carousel-col.a-carousel-right .a-button-image .a-button-inner { background: #fff; padding: 20px 6px; } .aplus-v2 .apm-brand-story-carousel .a-carousel-col.a-carousel-left .a-button-image .a-button-inner { border-radius: 0px 4px 4px 0px; } .aplus-v2 .apm-brand-story-carousel .a-carousel-col.a-carousel-right .a-button-image .a-button-inner { border-radius: 4px 0px 0px 4px; } Previous page View Store Visit the Store View Store Visit the Store Next page	69.95	{e6ae47a8-971a-449c-937c-7f68a58057a6}	{9,12,14}	\N	4ecef245-d048-4727-a9b0-4cb9a12d0e42	119620501368	12.46	\N	2025-03-02 16:45:45.570429+02	2025-03-02 16:45:45.570429+02	3
 33	Fruit of the Loom Women's 5 Pack Microfiber Low Rise Hipster Panties	Smooth, sleek microfiber designed to disappear under your clothes. A perfect addition for your everyday needs.	9.99	{14927d0d-fd70-4bb0-b901-2e7311eb4b3b}	{9,12,13}	{"Color": "Black, Purple, Blue, Red, White"}	4ecef245-d048-4727-a9b0-4cb9a12d0e42	345629627994	16.48	\N	2025-03-02 16:45:41.810789+02	2025-03-02 16:45:41.810789+02	15
+991	Shirt	shirt	12.00	{38b8f30d-5237-4658-a2f9-903adb7dc5b4}	{9,11}	\N	4ecef245-d048-4727-a9b0-4cb9a12d0e42	\N	\N	\N	2025-03-05 21:40:04.601695+02	2025-03-05 21:40:04.601695+02	1
 41	Roof and Gutter Deicing Cable - 80' Black Electric Heating Cord with 3 Prong Plug & 120 Volt Operation - 14081	This pre-assembled cable has been designed for the sole purpose of preventing the formation of ice dams on pitched roofs with non-combustible tab shingles and in metal or plastic gutters and downspouts. It provides drainage channels so that as natural thawing occurs, water has a path to flow off the roof and through the gutters and downspouts. This cable is not for use on a flat roof nor is it intended to clear the roof of snow and ice. The installation of this product is simple and it can be used with either metal or plastic gutters. Read and follow all instructions and pay particular attention to the following points: Install the cable when the outside temperature is above 50˚F because at lower temperatures shingle material may be brittle; Clear all leaves, pine needles and debris from the roof, gutters and downspouts before operating the cable. Do not plug the cable in unless it has been completely uncoiled or it will be damaged. Each package contains one ready-to-install cable, shingle clips, cable spacers and complete installation instructions. You will also need a tape measure, marker, gloves, ladder and a weatherproof GFCI outlet with control switch.	68.48	{3f1bf4be-7ae5-420b-a4f8-0530502e12ba}	{11}	\N	4ecef245-d048-4727-a9b0-4cb9a12d0e42	891248596588	12.7	\N	2025-03-02 16:45:47.82553+02	2025-03-02 16:45:47.82553+02	6
 572	Samsung Galaxy S21 Ultra | Factory Unlocked Android Cell Phone | US Version 5G Smartphone | Pro-Grade Camera, 8K Video, 108MP High Res | 128GB, Phantom Black (SM-G998UZKAXAA) (Renewed)	Pro Grade Camera Zoom in close, take photos and videos like a pro, and capture incredible share-ready moments with our easy-to-use, multi lens camera. Sharp 8K Videos Capture your life’s best moments in head-turning, super-smooth 8K video that gives your movies that cinema-style quality. 100x Zoom Get amazing clarity with a dual lens combo of 3x and 10x optical zoom, or go even further with our revolutionary 100x Space Zoom.	312.00	{047fe963-faf3-4bb1-bbd5-91af7b70e9dd}	{31}	\N	fbf3e92c-f681-428a-ae71-2b393dac3bec	104158414496	11.79	\N	2025-03-03 00:51:39.316434+02	2025-03-03 00:51:39.316434+02	2
 70	Bare Peel 15% Vitamin C Face Serum for Glowing Skin Contains Gotu Kola, Ferulic Acid and Aloe Vera for tightening the pores | SLS & Paraben Free | For All Skin Types (30ML)	About this item Contains Gotu Kola: Rich in antioxidants that helps strengthen the skin barrier by tightening the pores. Contains Ferulic Acid: Which amplifies the antioxidant nature of Ascorbic Acid AM/PM Can be used both in the morning and at night Anti-Aging: It helps in reducing fine lines, and wrinkles, and helps in improving skin pigmentation Brightening: Reduces hyperpigmentation by reducing the effects of the tyrosine enzyme. It helps in attaining youthful and glowing skin	389.00	{469a05d3-4e9c-4a16-b933-695b7d87ea75}	{29}	\N	4ecef245-d048-4727-a9b0-4cb9a12d0e42	682216806803	10.5	\N	2025-03-02 16:46:15.038446+02	2025-03-02 16:46:15.038446+02	11
@@ -2992,7 +2998,7 @@ COPY public.products (id, title, description, price, images, category, propertie
 
 
 --
--- TOC entry 4965 (class 0 OID 16546)
+-- TOC entry 4966 (class 0 OID 16546)
 -- Dependencies: 221
 -- Data for Name: roles; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -3009,7 +3015,7 @@ c2ec1a61-8f99-403c-88d3-f2da694b2ad8	STORE_ADMIN
 
 
 --
--- TOC entry 4964 (class 0 OID 16539)
+-- TOC entry 4965 (class 0 OID 16539)
 -- Dependencies: 220
 -- Data for Name: store_users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -3026,7 +3032,7 @@ c2ec1a61-8f99-403c-88d3-f2da694b2ad8	pink.admin@gmail.com	Pink Makinen	\N	\N	fbf
 
 
 --
--- TOC entry 4970 (class 0 OID 16599)
+-- TOC entry 4971 (class 0 OID 16599)
 -- Dependencies: 226
 -- Data for Name: stores; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -3041,7 +3047,7 @@ c17f72af-0d9c-492a-9c37-800f85148825	Teal	Diverse selection of used items.	Lahti
 
 
 --
--- TOC entry 4967 (class 0 OID 16564)
+-- TOC entry 4968 (class 0 OID 16564)
 -- Dependencies: 223
 -- Data for Name: system_admin; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -3052,7 +3058,7 @@ COPY public.system_admin (id, name, email, password, phone_number, created_at, u
 
 
 --
--- TOC entry 4986 (class 0 OID 0)
+-- TOC entry 4987 (class 0 OID 0)
 -- Dependencies: 217
 -- Name: categories_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -3061,7 +3067,7 @@ SELECT pg_catalog.setval('public.categories_id_seq', 39, true);
 
 
 --
--- TOC entry 4987 (class 0 OID 0)
+-- TOC entry 4988 (class 0 OID 0)
 -- Dependencies: 224
 -- Name: cities_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -3070,12 +3076,12 @@ SELECT pg_catalog.setval('public.cities_id_seq', 419, true);
 
 
 --
--- TOC entry 4988 (class 0 OID 0)
+-- TOC entry 4989 (class 0 OID 0)
 -- Dependencies: 227
 -- Name: products_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.products_id_seq', 990, true);
+SELECT pg_catalog.setval('public.products_id_seq', 991, true);
 
 
 --
@@ -3097,7 +3103,7 @@ ALTER TABLE ONLY public.cities
 
 
 --
--- TOC entry 4796 (class 2606 OID 16921)
+-- TOC entry 4797 (class 2606 OID 16921)
 -- Name: customer_addresses customer_addresses_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -3106,7 +3112,7 @@ ALTER TABLE ONLY public.customer_addresses
 
 
 --
--- TOC entry 4798 (class 2606 OID 16931)
+-- TOC entry 4799 (class 2606 OID 16931)
 -- Name: customer_passwords customer_passwords_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -3115,7 +3121,7 @@ ALTER TABLE ONLY public.customer_passwords
 
 
 --
--- TOC entry 4794 (class 2606 OID 16913)
+-- TOC entry 4795 (class 2606 OID 16913)
 -- Name: customers customer_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -3133,7 +3139,7 @@ ALTER TABLE ONLY public.images
 
 
 --
--- TOC entry 4802 (class 2606 OID 17022)
+-- TOC entry 4803 (class 2606 OID 17022)
 -- Name: order_items orderitems_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -3142,7 +3148,7 @@ ALTER TABLE ONLY public.order_items
 
 
 --
--- TOC entry 4800 (class 2606 OID 17000)
+-- TOC entry 4801 (class 2606 OID 17000)
 -- Name: orders orders_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -3160,7 +3166,7 @@ ALTER TABLE ONLY public.passwords
 
 
 --
--- TOC entry 4792 (class 2606 OID 16748)
+-- TOC entry 4793 (class 2606 OID 16748)
 -- Name: products products_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -3205,7 +3211,15 @@ ALTER TABLE ONLY public.system_admin
 
 
 --
--- TOC entry 4958 (class 2618 OID 17046)
+-- TOC entry 4791 (class 1259 OID 17094)
+-- Name: idx_products_title; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_products_title ON public.products USING btree (title);
+
+
+--
+-- TOC entry 4959 (class 2618 OID 17046)
 -- Name: order_response_view _RETURN; Type: RULE; Schema: public; Owner: postgres
 --
 
@@ -3236,7 +3250,7 @@ CREATE OR REPLACE VIEW public.order_response_view AS
 
 
 --
--- TOC entry 4803 (class 2606 OID 16490)
+-- TOC entry 4804 (class 2606 OID 16490)
 -- Name: categories categories_parent_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -3245,7 +3259,7 @@ ALTER TABLE ONLY public.categories
 
 
 --
--- TOC entry 4806 (class 2606 OID 16922)
+-- TOC entry 4807 (class 2606 OID 16922)
 -- Name: customer_addresses customer_addresses_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -3254,7 +3268,7 @@ ALTER TABLE ONLY public.customer_addresses
 
 
 --
--- TOC entry 4807 (class 2606 OID 16932)
+-- TOC entry 4808 (class 2606 OID 16932)
 -- Name: customer_passwords customer_passwords_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -3263,7 +3277,7 @@ ALTER TABLE ONLY public.customer_passwords
 
 
 --
--- TOC entry 4811 (class 2606 OID 17023)
+-- TOC entry 4812 (class 2606 OID 17023)
 -- Name: order_items orderitems_order_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -3272,7 +3286,7 @@ ALTER TABLE ONLY public.order_items
 
 
 --
--- TOC entry 4812 (class 2606 OID 17028)
+-- TOC entry 4813 (class 2606 OID 17028)
 -- Name: order_items orderitems_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -3281,7 +3295,7 @@ ALTER TABLE ONLY public.order_items
 
 
 --
--- TOC entry 4808 (class 2606 OID 17001)
+-- TOC entry 4809 (class 2606 OID 17001)
 -- Name: orders orders_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -3290,7 +3304,7 @@ ALTER TABLE ONLY public.orders
 
 
 --
--- TOC entry 4809 (class 2606 OID 17011)
+-- TOC entry 4810 (class 2606 OID 17011)
 -- Name: orders orders_delivery_address_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -3299,7 +3313,7 @@ ALTER TABLE ONLY public.orders
 
 
 --
--- TOC entry 4810 (class 2606 OID 17006)
+-- TOC entry 4811 (class 2606 OID 17006)
 -- Name: orders orders_store_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -3308,7 +3322,7 @@ ALTER TABLE ONLY public.orders
 
 
 --
--- TOC entry 4805 (class 2606 OID 16749)
+-- TOC entry 4806 (class 2606 OID 16749)
 -- Name: products products_store_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -3317,7 +3331,7 @@ ALTER TABLE ONLY public.products
 
 
 --
--- TOC entry 4804 (class 2606 OID 17056)
+-- TOC entry 4805 (class 2606 OID 17056)
 -- Name: roles roles_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -3325,7 +3339,7 @@ ALTER TABLE ONLY public.roles
     ADD CONSTRAINT roles_id_fkey FOREIGN KEY (id) REFERENCES public.store_users(id) ON DELETE CASCADE;
 
 
--- Completed on 2025-03-05 19:58:42
+-- Completed on 2025-03-05 22:02:18
 
 --
 -- PostgreSQL database dump complete
