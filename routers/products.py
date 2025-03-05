@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from utils.db_utils import *
 from base_models.models import *
 import json
@@ -14,6 +14,11 @@ async def get_products():
 
 @router.get("/{product_id}")
 async def get_product(product_id: str):
+    try:
+        product_id = int(product_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid product ID format. Must be an integer.")
+    
     product = read_record('products', conditions={'id': product_id})
     if product is None:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -44,4 +49,15 @@ async def fetch_products_by_ids(product_ids: ProductIDs):
             products.append(product)
     if not products:
         raise HTTPException(status_code=404, detail="No products found for the given IDs")
+    return products
+
+@router.post("/search")
+def search_products(data: SearchRequest):
+    title = data.title
+    print(f"Searching for products with title: {title}")
+    products = get_products_by_title(title)
+    if len(products) > 20:
+        products = products[:20]
+    if not products:
+        raise HTTPException(status_code=404, detail="No products found matching the search criteria")
     return products

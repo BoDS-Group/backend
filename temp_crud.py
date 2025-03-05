@@ -345,3 +345,5 @@ attributes = {
 # Example usage
 # orders_response = read_records('order_response_view')
 # print(orders_response)
+
+print(get_products_by_title("Saucony Men's Kinvara 17 Running Shoes"))

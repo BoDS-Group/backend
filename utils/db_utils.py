@@ -512,3 +512,18 @@ def excecute_query_with_return(query: str):
         with conn.cursor() as cursor:
             cursor.execute(query)
             return dictfetchall(cursor)
+          
+def get_products_by_title(search: str):
+    conn = get_connection()
+    try:
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        query = "SELECT * FROM products WHERE title ILIKE %s"
+        cursor.execute(query, (f"%{search}%",))
+        results = dictfetchall(cursor)
+        return results
+    except Exception as e:
+        print("Error fetching products:", e)
+        return []
+    finally:
+        cursor.close()
+        conn.close()

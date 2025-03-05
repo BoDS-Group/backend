@@ -39,7 +39,7 @@ class ProductCreate(BaseModel):
     description: Optional[str] = None
     price: float
     images: Optional[list[str]] = None
-    category: int
+    category: List[int]
     properties: Optional[dict] = None
 
 class ProductUpdate(BaseModel):
@@ -163,3 +163,6 @@ class Order(BaseModel):
 
 class OrdersResponse(BaseModel):
     orders: List[Order]
+    
+class SearchRequest(BaseModel):
+    title: str
