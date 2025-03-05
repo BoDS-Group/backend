@@ -9,7 +9,10 @@ import requests
 import asyncio
 from starlette.datastructures import UploadFile
 from tempfile import SpooledTemporaryFile
-
+import hashlib
+import barcode
+from barcode.writer import ImageWriter
+import random
 
 IMAGE_BASE_DIR = os.getenv("IMAGE_BASE_DIR")
 
@@ -169,7 +172,85 @@ async def insert_products_from_csv(file_path):
             print(f"Failed to insert product: {e}")
             continue
 
-async def main():
-    await insert_products_from_csv(file_path)
+# async def main():
+#     await insert_products_from_csv(file_path)
 
-asyncio.run(main())
+# asyncio.run(main())
+
+
+# def generate_barcode_image(barcode_value: str, product_id: str):
+#     EAN = barcode.get_barcode_class('ean13')
+#     ean = EAN(barcode_value, writer=ImageWriter())
+
+#     filename = f"barcode_{product_id}"
+#     ean.save(filename)
+
+#     return filename
+
+# product_id = str(uuid.uuid4())
+# title = 'Sample Product'
+# description = 'This is a sample product description.'
+# price = 19.99
+# images = ['image1.jpg', 'image2.jpg']
+# category = [1] 
+# properties = {'color': 'red', 'size': 'M'}
+
+# barcode_value = generate_barcode_value(product_id, title, price)
+# print(f"Generated barcode value: {barcode_value}")
+# barcode_filename = generate_barcode_image(barcode_value, product_id)
+# print(f"Barcode saved as {barcode_filename}.png")
+
+
+def generate_barcode_value(product_id: str, title: str, price: float) -> str:
+    # Combine product attributes to create a unique string
+    unique_string = f"{product_id}-{title}-{price}"
+    
+    # Generate a hash of the unique string
+    hash_object = hashlib.sha256(unique_string.encode())
+    hash_int = int(hash_object.hexdigest(), 16)
+    
+    # Convert the hash to a 12-digit number
+    barcode_value = str(hash_int)[:12].zfill(12)
+    
+    return barcode_value
+
+
+def generate_and_update_product_barcodes():
+    # Read all products from the database
+    products = read_records('products')
+
+    for product in products:
+        product_id = product['id']
+        title = product['title']
+        price = product['price']
+        current_barcode = product.get('barcode', '')
+        carbon_savings = round(random.uniform(10, 20), 2)
+        
+        if not current_barcode:
+            new_barcode = generate_barcode_value(str(product_id), title, float(price))
+            update_record(
+                'products',
+                attributes=['barcode', 'carbon_savings'],
+                values=[new_barcode, carbon_savings],
+                conditions={'id': product_id}
+            )
+            print(f"Updated product '{title}' (ID: {product_id}) with barcode '{new_barcode}'.")
+# generate_and_update_product_barcodes()
+
+def generate_random_quantity_and_insert():
+    # Read all products from the database
+    products = read_records('products')
+
+    for product in products:
+        quantity = random.randint(2, 15)
+        
+        product_id = product['id']
+        update_record(
+            'products',
+            attributes=['qty'],
+            values=[quantity],
+            conditions={'id': product_id}
+        )
+        print(f"Updated product (ID: {product_id}) with quantity '{quantity}'.")
+generate_random_quantity_and_insert()
+

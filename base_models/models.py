@@ -103,6 +103,9 @@ class SubmitOrderOffline(BaseModel):
     # street_address: str
     # country: str
     # password: Optional[str] = None
+    
+class OrderCart(BaseModel):
+    cart_items: dict
 
 class CategoryCreate(BaseModel):
     name: str

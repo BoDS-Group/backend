@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from utils.db_utils import *
 from base_models.models import *
 import os
-from routers import auth_admin, admin, auth_store, orders, store_categories, store_products, store_orders, store_admin, stores, image, products
+from routers import auth_admin, admin, auth_store, orders, store_categories, store_products, store_orders, store_admin, store_employee, stores, image, products
 
 IMAGE_BASE_DIR = os.getenv("IMAGE_BASE_DIR")
 
@@ -37,3 +37,4 @@ app.include_router(stores.router)
 app.include_router(products.router)
 app.include_router(store_orders.router)
 app.include_router(store_admin.router)
+app.include_router(store_employee.router)
